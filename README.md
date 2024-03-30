@@ -322,3 +322,30 @@ y_preds = [y_pred_1, y_pred_2, y_pred_3]
 combinations = do_combinations([0, 1, 2], 1, 3)
 results = do_voting(y_preds, combinations)
 ```
+
+***
+
+### examine_time
+
+It calculates the fitting time for a model and also returns the trained model.
+
+**Returns**: 
+1. int
+2. model
+
+**Parameters**:
+* model
+* X_train
+* y_train
+
+```python
+from wolta.model_tools import examine_time
+from sklearn.ensemble import RandomForestClassifier
+import numpy as np
+
+X_train = np.load('x.npy')
+y_train = np.load('y.npy')
+
+model = RandomForestClassifier(random_state=42)
+consumed, model = examine_time(model, X_train, y_train)
+```
