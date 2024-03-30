@@ -1,2 +1,2 @@
-from model_tools import *
-from data_tools import *
+from . import model_tools
+from . import data_tools

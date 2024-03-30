@@ -7,7 +7,7 @@ here = os.path.abspath(os.path.dirname(__file__))
 with codecs.open(os.path.join(here, "README.md"), encoding="utf-8") as fh:
     long_description = "\n" + fh.read()
 
-VERSION = '0.0.1'
+VERSION = '0.0.4'
 DESCRIPTION = 'Data Science Library'
 LONG_DESCRIPTION = 'A package for data science'
 
@@ -22,6 +22,7 @@ setup(
     packages=find_packages(),
     install_requires=['scikit-learn', 'pandas', 'numpy'],
     keywords=['python', 'machine', 'learning', 'machine learning', 'data science', 'data'],
+    py_modules=['data_tools', 'model_tools'],
     classifiers=[
         "Development Status :: 1 - Planning",
         "Intended Audience :: Developers",
