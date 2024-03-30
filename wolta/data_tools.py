@@ -43,17 +43,16 @@ def unique_amounts(df, strategy=None, print_dict=False):
         return space
 
 
-def make_numerics(columns):
-    for column in columns:
-        unique_vals = list(column.unique())
-        space = {}
+def make_numerics(column):
+    unique_vals = list(column.unique())
+    space = {}
 
-        for i in range(len(unique_vals)):
-            space[unique_vals[i]] = i
+    for i in range(len(unique_vals)):
+        space[unique_vals[i]] = i
 
-        column = column.map(space)
+    column = column.map(space)
 
-    return columns
+    return column
 
 
 def scale_x(X_train, X_test):
@@ -84,7 +83,7 @@ def calculate_bounds(gen_types, min_val, max_val):
     types = []
 
     for i in range(len(gen_types)):
-        if gen_types[i] == 'int':
+        if gen_types[i].startswith('int'):
             if min_val[i] > -127 and max_val[i] < 128:
                 types.append('int8')
             elif min_val[i] > -32768 and max_val[i] < 32767:
@@ -94,7 +93,7 @@ def calculate_bounds(gen_types, min_val, max_val):
             else:
                 types.append('int64')
 
-        elif gen_types[i] == 'float':
+        elif gen_types[i].startswith('float'):
             if min_val[i] > 1.17549435e-38 and max_val[i] < 3.40282346e+38:
                 types.append('float32')
             else:
@@ -125,12 +124,13 @@ def calculate_min_max(paths, deleted_columns=None):
 
             for i in range(len(columns)):
                 sub_type = str(type(sub_df.iloc[0, i]))[8:-2].replace('numpy.', '')
-                types.append(sub_type)
 
                 if sub_type.startswith('int'):
+                    types.append(sub_type)
                     max_val.append(0)
                     min_val.append(0)
                 elif sub_type.startswith('float'):
+                    types.append(sub_type)
                     max_val.append(float(0))
                     min_val.append(float(0))
                 else:
@@ -159,7 +159,7 @@ def load_by_parts(paths, strategy='default', deleted_columns=None, print_descrip
 
     if strategy == 'default':
         dfs = []
-
+        loc = 0
         for path in paths:
             df = pd.read_csv(path)
 
@@ -169,6 +169,10 @@ def load_by_parts(paths, strategy='default', deleted_columns=None, print_descrip
 
             dfs.append(df)
 
+            if print_description:
+                loc += 1
+                print('{} out of {} paths done'.format(str(loc), str(len(paths))))
+
         main_df = pd.concat(dfs)
         del dfs
 
@@ -176,7 +180,7 @@ def load_by_parts(paths, strategy='default', deleted_columns=None, print_descrip
 
     elif strategy == 'efficient':
         numeric_columns, types, max_val, min_val = calculate_min_max(paths, deleted_columns=deleted_columns)
-        types = calculate_bounds(types, max_val, min_val)
+        types = calculate_bounds(types, min_val, max_val)
 
         dtype = {}
         for i in range(len(numeric_columns)):
@@ -185,6 +189,7 @@ def load_by_parts(paths, strategy='default', deleted_columns=None, print_descrip
         del numeric_columns, max_val, min_val, types
 
         dfs = []
+        loc = 0
 
         for path in paths:
             df = pd.read_csv(path, dtype=dtype)
@@ -194,6 +199,10 @@ def load_by_parts(paths, strategy='default', deleted_columns=None, print_descrip
                     del df[col]
 
             dfs.append(df)
+
+            if print_description:
+                loc += 1
+                print('{} out of {} paths done'.format(str(loc), str(len(paths))))
 
         main_df = pd.concat(dfs)
         del dfs
