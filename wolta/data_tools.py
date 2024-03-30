@@ -1,3 +1,6 @@
+import os
+
+
 def col_types(df, print_columns=False):
     types = []
 
@@ -208,3 +211,34 @@ def load_by_parts(paths, strategy='default', deleted_columns=None, print_descrip
         del dfs
 
         return main_df
+
+
+def create_chunks(path, sample_amount, target_dir=None, print_description=False):
+    with open(path, 'r', newline='') as f:
+        lines = f.readlines()
+        headers = lines[0]
+
+        part = 0
+        loc = 1
+
+        while loc < len(lines):
+            sub = [headers]
+            times = 0
+
+            while loc < len(lines) and times < sample_amount:
+                sub.append(lines[loc])
+
+                loc += 1
+                times += 1
+
+            sub_path = 'part-{}.csv'.format(str(part))
+            if target_dir is not None:
+                sub_path = os.path.join(target_dir, sub_path)
+
+            with open(sub_path, 'w', newline='') as sf:
+                sf.writelines(sub)
+
+            if print_description:
+                print('part {} is done'.format(str(part)))
+
+            part += 1
