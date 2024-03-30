@@ -131,3 +131,14 @@ def do_combinations(indexes, min_item, max_item):
             combinations.append(list(comb))
 
     return combinations
+
+
+def examine_time(model, X_train, y_train):
+    import time
+
+    start = time.process_time()
+    model.fit(X_train, y_train)
+    end = time.process_time()
+
+    consumed = end - start
+    return consumed
