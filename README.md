@@ -4,6 +4,12 @@ Wolta is designed for making simplify the frequently used processes which includ
 <br><br>
 Currently there are two modules inside the library, which are 'data_tools' and 'model_tools'
 
+## Installation
+
+```
+pip install wolta
+```
+
 ## Data Tools
 
 Data Tools was designed for manipulating the data.
