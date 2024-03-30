@@ -213,7 +213,7 @@ def load_by_parts(paths, strategy='default', deleted_columns=None, print_descrip
         return main_df
 
 
-def create_chunks(path, sample_amount, target_dir=None, print_description=False):
+def create_chunks(path, sample_amount, target_dir=None, print_description=False, chunk_name='part'):
     with open(path, 'r', newline='') as f:
         lines = f.readlines()
         headers = lines[0]
@@ -231,7 +231,7 @@ def create_chunks(path, sample_amount, target_dir=None, print_description=False)
                 loc += 1
                 times += 1
 
-            sub_path = 'part-{}.csv'.format(str(part))
+            sub_path = '{}-{}.csv'.format(chunk_name, str(part))
             if target_dir is not None:
                 sub_path = os.path.join(target_dir, sub_path)
 
