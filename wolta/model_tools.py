@@ -141,4 +141,4 @@ def examine_time(model, X_train, y_train):
     end = time.process_time()
 
     consumed = end - start
-    return consumed
+    return consumed, model
