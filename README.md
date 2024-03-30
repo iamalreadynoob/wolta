@@ -83,6 +83,23 @@ df['output'] = make_numerics(df['output'])
 
 ***
 
+### create_chunks
+
+**Parameters**:
+
+* path, _string_
+* sample_amount, _int_, sample amount for each chunk
+* target_dir, _string_, directory path to save chunks, by default, None
+* print_description, _boolean_, shows the progress in console or not, by default, False
+* chunk_name, _string_, general name for chunks, by default, 'part'
+
+```python
+from wolta.data_tools import create_chunks
+create_chunks('whole_data.csv', 1000000)
+```
+
+***
+
 ### unique_amounts
 
 **Returns**: dictionary with <string, int> form, <column name, unique value amount>
@@ -90,7 +107,7 @@ df['output'] = make_numerics(df['output'])
 <br>
 1. df, _pandas dataframe_
 2. strategy, _python string list_, by default, None, it is designed for to hold requested column names
-3. print_dic, _boolean_, by default, False
+3. print_dict, _boolean_, by default, False
 
 ```python
 import pandas as pd
