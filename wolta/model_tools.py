@@ -69,7 +69,7 @@ def get_score(y_test, y_pred, metrics=None, average='weighted'):
             if output == '':
                 output = 'Precision Score: {}'.format(str(score))
             else:
-                output += 'Precision Score: {}'.format(str(score))
+                output += '\nPrecision Score: {}'.format(str(score))
 
         elif metric == 'recall':
             score = recall_score(y_test, y_pred, average=average)
