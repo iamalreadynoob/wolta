@@ -46,7 +46,7 @@ def unique_amounts(df, strategy=None, print_dict=False):
         return space
 
 
-def make_numerics(column):
+def make_numerics(column, space_requested=False):
     unique_vals = list(column.unique())
     space = {}
 
@@ -55,7 +55,10 @@ def make_numerics(column):
 
     column = column.map(space)
 
-    return column
+    if space_requested:
+        return column, space
+    else:
+        return column
 
 
 def scale_x(X_train, X_test):
