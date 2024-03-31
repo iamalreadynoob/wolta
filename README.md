@@ -71,8 +71,13 @@ types = col_types(df)
 
 ### make_numerics
 
-**Returns**: _pandas dataframe column which has int64 data inside it
-**Parameter**: column, _pandas dataframe column_
+**Returns**: 
+1. _pandas dataframe column_ which has int64 data inside it
+2. If space_requested is True, then dictionary that used in mapping
+
+**Parameters**: 
+* column, _pandas dataframe column_
+* space_requested, _boolean_, by default, False
 
 ```python
 import pandas as pd
