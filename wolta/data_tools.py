@@ -157,7 +157,7 @@ def calculate_min_max(paths, deleted_columns=None):
     return columns, types, max_val, min_val
 
 
-def load_by_parts(paths, strategy='default', deleted_columns=None, print_description=False):
+def load_by_parts(paths, strategy='default', deleted_columns=None, print_description=False, shuffle=False):
     import pandas as pd
 
     if strategy == 'default':
@@ -170,14 +170,33 @@ def load_by_parts(paths, strategy='default', deleted_columns=None, print_descrip
                 for col in deleted_columns:
                     del df[col]
 
+            if shuffle:
+                df = df.sample(frac=1).reset_index(drop=True)
+
             dfs.append(df)
 
             if print_description:
                 loc += 1
                 print('{} out of {} paths done'.format(str(loc), str(len(paths))))
 
-        main_df = pd.concat(dfs)
-        del dfs
+        main_df = None
+
+        if shuffle:
+            import random
+            times = len(dfs)
+            shuffled_dfs = []
+
+            for i in range(times):
+                index = random.randint(0, len(dfs) - 1)
+                shuffled_dfs.append(dfs.pop(index))
+
+            del dfs
+            main_df = pd.concat(shuffled_dfs)
+            del shuffled_dfs
+
+        else:
+            main_df = pd.concat(dfs)
+            del dfs
 
         return main_df
 
@@ -201,14 +220,33 @@ def load_by_parts(paths, strategy='default', deleted_columns=None, print_descrip
                 for col in deleted_columns:
                     del df[col]
 
+            if shuffle:
+                df = df.sample(frac=1).reset_index(drop=True)
+
             dfs.append(df)
 
             if print_description:
                 loc += 1
                 print('{} out of {} paths done'.format(str(loc), str(len(paths))))
 
-        main_df = pd.concat(dfs)
-        del dfs
+        main_df = None
+
+        if shuffle:
+            import random
+            times = len(dfs)
+            shuffled_dfs = []
+
+            for i in range(times):
+                index = random.randint(0, len(dfs) - 1)
+                shuffled_dfs.append(dfs.pop(index))
+
+            del dfs
+            main_df = pd.concat(shuffled_dfs)
+            del shuffled_dfs
+
+        else:
+            main_df = pd.concat(dfs)
+            del dfs
 
         return main_df
 
