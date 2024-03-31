@@ -24,6 +24,7 @@ Data Tools was designed for manipulating the data.
 * strategy, {'default', 'efficient'}, by default, 'default'
 * deleted_columns, _python string list_, by default, None
 * print_description, _boolean_, by default, False
+* shuffle, _boolean_ , by default, False
 
 1. _paths_ holds the locations of data files.
 <br>
