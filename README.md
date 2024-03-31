@@ -365,7 +365,7 @@ It was designed to use one loaded numpy array for all sampling trials.
 2. list of dictionaries, metrics logging
 
 **Parameters**:
-* model
+* model_class
 * X_train
 * y_train
 * X_test
@@ -375,20 +375,19 @@ It was designed to use one loaded numpy array for all sampling trials.
 * increment, int, default by, 1
 * metrics, list of string, the values must be recognizable for model_tools.get_score(), default by, ['acc']
 * average, string, the value must be recognizable for model_tools.get_score(), default by, 'weighted'
+* params, dictionary, if model has parameters, they initialize it here, default by, None
 
 ```python
 from wolta.progressive_tools import make_run
 from sklearn.ensemble import RandomForestClassifier
 import numpy as np
 
-model = RandomForestClassifier(random_state=42)
-
 X_train = np.load('x_train.npy')
 y_train = np.load('y_train.npy')
 X_test = np.load('x_test.npy')
 y_test = np.load('x_test.npy')
 
-percentage_log, metrics_log = make_run(model, X_train, y_train, X_test, y_test)
+percentage_log, metrics_log = make_run(RandomForestClassifier, X_train, y_train, X_test, y_test)
 ```
 
 ***
@@ -409,14 +408,12 @@ from wolta.progressive_tools import make_run, get_best
 from sklearn.ensemble import RandomForestClassifier
 import numpy as np
 
-model = RandomForestClassifier(random_state=42)
-
 X_train = np.load('x_train.npy')
 y_train = np.load('y_train.npy')
 X_test = np.load('x_test.npy')
 y_test = np.load('x_test.npy')
 
-percentage_log, metrics_log = make_run(model, X_train, y_train, X_test, y_test)
+percentage_log, metrics_log = make_run(RandomForestClassifier, X_train, y_train, X_test, y_test)
 best_per, best_score = get_best(percentage_log, metrics_log, 'acc')
 ```
 
@@ -430,12 +427,13 @@ Unlike make_run, it loads train data from different files every time.
 
 **Parameters**:
 * paths, _list of string_
-* model
+* model_class
 * X_test
 * y_test
 * output_column, _string_
 * metrics, list of string, the values must be recognizable for model_tools.get_score(), default by, ['acc']
 * average, string, the value must be recognizable for model_tools.get_score(), default by, 'weighted'
+* params, dictionary, if model has parameters, they initialize it here, default by, None
 
 ```python
 from wolta.progressive_tools import path_chain
@@ -443,12 +441,10 @@ from sklearn.ensemble import RandomForestClassifier
 import numpy as np
 import glob
 
-model = RandomForestClassifier(random_state=42)
-
 X_test = np.load('x_test.npy')
 y_test = np.load('x_test.npy')
 
 paths = glob.glob('path/to/dir/*.csv')
 
-percentage_log, metrics_log = path_chain(paths, model, X_test, y_test, 'output')
+percentage_log, metrics_log = path_chain(paths, RandomForestClassifier, X_test, y_test, 'output')
 ```
