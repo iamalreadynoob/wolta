@@ -2,7 +2,7 @@
 
 Wolta is designed for making simplify the frequently used processes which includes Pandas, Numpy and Scikit-Learn in Machine Learning.
 <br><br>
-Currently there are two modules inside the library, which are 'data_tools' and 'model_tools'
+Currently there are three modules inside the library, which are 'data_tools', 'model_tools' and 'progressive_tools'
 
 ## Installation
 
@@ -348,4 +348,107 @@ y_train = np.load('y.npy')
 
 model = RandomForestClassifier(random_state=42)
 consumed, model = examine_time(model, X_train, y_train)
+```
+
+***
+
+## Progressive Tools
+
+This module has been designed for progressive sampling.
+
+### make_run
+
+It was designed to use one loaded numpy array for all sampling trials.
+
+**Returned**:
+1. list of int, percentage logging
+2. list of dictionaries, metrics logging
+
+**Parameters**:
+* model
+* X_train
+* y_train
+* X_test
+* y_test
+* init_per, int, default by, 1, inclusive starting percentage
+* limit_per, int, default by, 100, inclusive ending percentage
+* increment, int, default by, 1
+* metrics, list of string, the values must be recognizable for model_tools.get_score(), default by, ['acc']
+* average, string, the value must be recognizable for model_tools.get_score(), default by, 'weighted'
+
+```python
+from wolta.progressive_tools import make_run
+from sklearn.ensemble import RandomForestClassifier
+import numpy as np
+
+model = RandomForestClassifier(random_state=42)
+
+X_train = np.load('x_train.npy')
+y_train = np.load('y_train.npy')
+X_test = np.load('x_test.npy')
+y_test = np.load('x_test.npy')
+
+percentage_log, metrics_log = make_run(model, X_train, y_train, X_test, y_test)
+```
+
+***
+
+### get_best
+
+**Returns**:
+1. int, best percentage
+2. float, best score
+
+**Parameters**:
+* percentage_log, _list of int_
+* metrics_log, _list of dictionary_
+* requested_metrics, _string_
+
+```python
+from wolta.progressive_tools import make_run, get_best
+from sklearn.ensemble import RandomForestClassifier
+import numpy as np
+
+model = RandomForestClassifier(random_state=42)
+
+X_train = np.load('x_train.npy')
+y_train = np.load('y_train.npy')
+X_test = np.load('x_test.npy')
+y_test = np.load('x_test.npy')
+
+percentage_log, metrics_log = make_run(model, X_train, y_train, X_test, y_test)
+best_per, best_score = get_best(percentage_log, metrics_log, 'acc')
+```
+
+***
+
+### path_chain
+
+Unlike make_run, it loads train data from different files every time.
+
+**Returns**: list of dictionary, metrics logging
+
+**Parameters**:
+* paths, _list of string_
+* model
+* X_test
+* y_test
+* output_column, _string_
+* metrics, list of string, the values must be recognizable for model_tools.get_score(), default by, ['acc']
+* average, string, the value must be recognizable for model_tools.get_score(), default by, 'weighted'
+
+```python
+from wolta.progressive_tools import path_chain
+from sklearn.ensemble import RandomForestClassifier
+import numpy as np
+import glob
+
+model = RandomForestClassifier(random_state=42)
+
+X_test = np.load('x_test.npy')
+y_test = np.load('x_test.npy')
+
+paths = glob.glob('path/to/dir/*.csv')
+
+percentage_log, metrics_log = path_chain(paths, model, X_test, y_test, 'output')
 ```
