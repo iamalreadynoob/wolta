@@ -22,7 +22,7 @@ setup(
     packages=find_packages(),
     install_requires=['scikit-learn', 'pandas', 'numpy'],
     keywords=['python', 'machine', 'learning', 'machine learning', 'data science', 'data'],
-    py_modules=['data_tools', 'model_tools'],
+    py_modules=['data_tools', 'model_tools', 'progressive_tools'],
     classifiers=[
         "Development Status :: 1 - Planning",
         "Intended Audience :: Developers",
