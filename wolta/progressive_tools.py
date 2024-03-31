@@ -1,4 +1,4 @@
-def make_run(model, X_train, y_train, X_test, y_test, init_per=1, limit_per=100, increment=1, metrics=None, average='weighted'):
+def make_run(model_class, X_train, y_train, X_test, y_test, init_per=1, limit_per=100, increment=1, metrics=None, average='weighted', params=None):
     from model_tools import get_score
 
     if metrics is None:
@@ -9,6 +9,11 @@ def make_run(model, X_train, y_train, X_test, y_test, init_per=1, limit_per=100,
 
     for i in range(init_per, limit_per + 1, increment):
         chunksize = X_train.shape[0] * i // 100
+
+        if params is not None:
+            model = model_class(**params)
+        else:
+            model = model_class()
 
         model.fit(X_train[:chunksize], y_train[:chunksize])
         y_pred = model.predict(X_test)
@@ -33,7 +38,7 @@ def get_best(percentage_log, metrics_log, requested_metrics):
 
     return best_percentage, best_score
 
-def path_chain(paths, model, X_test, y_test, output_column, metrics=None, average='weighted'):
+def path_chain(paths, model_class, X_test, y_test, output_column, metrics=None, average='weighted', params=None):
     import pandas as pd
     from model_tools import get_score
 
@@ -48,6 +53,11 @@ def path_chain(paths, model, X_test, y_test, output_column, metrics=None, averag
         del df[output_column]
         X_train = df.values
         del df
+
+        if params is not None:
+            model = model_class(**params)
+        else:
+            model = model_class()
 
         model.fit(X_train, y_train)
         y_pred = model.predict(X_test)
