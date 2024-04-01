@@ -1,6 +1,3 @@
-import os
-
-
 def col_types(df, print_columns=False):
     types = []
 
@@ -255,6 +252,8 @@ def load_by_parts(paths, strategy='default', deleted_columns=None, print_descrip
 
 
 def create_chunks(path, sample_amount, target_dir=None, print_description=False, chunk_name='part'):
+    import os
+
     with open(path, 'r', newline='') as f:
         lines = f.readlines()
         headers = lines[0]
