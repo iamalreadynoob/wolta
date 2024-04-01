@@ -160,14 +160,14 @@ def calculate_min_max(paths, deleted_columns=None):
     return columns, types, max_val, min_val
 
 
-def load_by_parts(paths, strategy='default', deleted_columns=None, print_description=False, shuffle=False):
+def load_by_parts(paths, strategy='default', deleted_columns=None, print_description=False, shuffle=False, encoding='utf-8'):
     import pandas as pd
 
     if strategy == 'default':
         dfs = []
         loc = 0
         for path in paths:
-            df = pd.read_csv(path)
+            df = pd.read_csv(path, encoding=encoding)
 
             if deleted_columns is not None:
                 for col in deleted_columns:
@@ -217,7 +217,7 @@ def load_by_parts(paths, strategy='default', deleted_columns=None, print_descrip
         loc = 0
 
         for path in paths:
-            df = pd.read_csv(path, dtype=dtype)
+            df = pd.read_csv(path, dtype=dtype, encoding=encoding)
 
             if deleted_columns is not None:
                 for col in deleted_columns:
