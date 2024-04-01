@@ -2,7 +2,7 @@
 
 Wolta is designed for making simplify the frequently used processes which includes Pandas, Numpy and Scikit-Learn in Machine Learning.
 <br><br>
-Currently there are three modules inside the library, which are 'data_tools', 'model_tools' and 'progressive_tools'
+Currently there are four modules inside the library, which are 'data_tools', 'model_tools', 'progressive_tools' and 'feature_tools'
 
 ## Installation
 
@@ -454,3 +454,30 @@ paths = glob.glob('path/to/dir/*.csv')
 
 percentage_log, metrics_log = path_chain(paths, RandomForestClassifier, X_test, y_test, 'output')
 ```
+
+***
+
+## Feature Tools
+
+This module is about to manipulating features in datasets.
+
+### quest_selection
+
+Prints out suggestions about what feature(s) can be deleted with less loss or maximum gain.
+
+The algorithm works with two steps: Firstly, It removes one feature for each time and compares accuracies between current situation and whole-features case. If new accuracy is the better than whole-feature one or their difference less-equal than flag_one_tol, it passes to the second step.
+<br>
+The next process 'trials' times creates combinations with random amounts of passed features and they are removed at same time. If new accuracy is the better than whole-feature one or their difference less-equal than fin_tol, it becomes a suggestion.
+
+**Parameters**:
+* model_class
+* X_train
+* y_train
+* X_test
+* y_test
+* features, list of string, holds column names for X.
+* flag_one_tol, float
+* fin_tol, float
+* params, dictionary, if model has parameters, they initialize it here, default by, None
+* normal_acc, float, default by, None. If it is None then it is calculated first of all
+* trials, int, default by, 100
