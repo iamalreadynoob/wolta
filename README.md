@@ -314,8 +314,11 @@ combinations = do_combinations([0, 1, 2], 1, 3)
 **Parameters**:
 * y_pred_list, _list of 1D numpy arrays_
 * combinations, _list of int lists_, it holds the indexes from y_pred_list for each combination
+* strategy, {'avg', 'mode'}, default by, 'avg'
 
-This function makes sum of matrices, then divides it the amount of matrices and finally makes whole matrix as int value.
+If 'avg' is selected then this function makes sum of matrices, then divides it the amount of matrices and finally makes whole matrix as int value.
+<br>
+If 'mode' is selected then for every sample, the predicts are collected and then mode is found one by one.
 
 ```python
 import numpy as np
