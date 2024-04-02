@@ -335,6 +335,22 @@ results = do_voting(y_preds, combinations)
 
 ***
 
+### WelkinClassification
+
+The Welkin Classification has a very basic idea. It calculates min and max values for each feature for every class according to the training data. Then, in prediction process, it checks every classes one by one, if input features between the range that detected, it gives a score. The class which has the biggest score is become the predict. Ofcourse this is for 'travel' strategy. If the strategy is 'limit', then if m of features has value between those ranges, that becomes the answer and the other possible answers aren't investigated. This strategy is recommended for speed. At this point, feature investigation order becomes crucial so they can be reordered with 'priority' parameter.
+
+**Parameters**:
+* strategy, {'travel', 'limit'}, by default, 'travel'
+* priority, list of feature indexes, by default, None
+* limit, integer, by default, None
+
+This class has those functions:
+
+* fit(X_train, y_train)
+* predict(X_test), returns y_pred
+
+***
+
 ### examine_time
 
 It calculates the fitting time for a model and also returns the trained model.
