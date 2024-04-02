@@ -101,23 +101,75 @@ def get_avg_options():
     return ['micro', 'macro', 'binary', 'weighted', 'samples']
 
 
-def do_voting(y_pred_list, combinations):
-    results = []
+def do_voting(y_pred_list, combinations, strategy='avg'):
+    if strategy == 'avg':
+        results = []
 
-    for comb in combinations:
-        y_sum = None
+        for comb in combinations:
+            y_sum = None
 
-        for index in comb:
-            if y_sum is None:
-                y_sum = y_pred_list[index]
-            else:
-                y_sum += y_pred_list[index]
+            for index in comb:
+                if y_sum is None:
+                    y_sum = y_pred_list[index]
+                else:
+                    y_sum += y_pred_list[index]
 
-        y_sum = y_sum / len(comb)
-        y_sum = y_sum.astype(int)
-        results.append(y_sum)
+            y_sum = y_sum / len(comb)
+            y_sum = y_sum.astype(int)
+            results.append(y_sum)
 
-    return results
+        return results
+
+    elif strategy == 'mode':
+        from math import ceil
+        import numpy as np
+
+        results = []
+
+        for comb in combinations:
+            selected = []
+            for index in comb:
+                selected.append(y_pred_list[index])
+
+            stack = np.concatenate(selected, axis=1)
+            del selected
+
+            req_min = ceil(len(list(stack[0])) / 2)
+            length = stack.shape[0]
+            modes = []
+
+            for i in range(length):
+                result = 0
+                max_times = 0
+                min_space = max_times + 1
+                row = list(stack[i])
+
+                while len(row) > 0:
+                    loc = 0
+                    obj = row[0]
+                    times = 0
+
+                    while loc < len(row):
+                        if obj == row[loc]:
+                            del row[loc]
+                            times += 1
+                        else:
+                            loc += 1
+
+                    if times > max_times:
+                        result = obj
+                        max_times = times
+                        min_space = max_times + 1
+
+                    if max_times >= req_min or len(row) < min_space:
+                        break
+
+                modes.append(result)
+
+            modes = np.array(modes)
+            results.append(modes)
+
+        return results
 
 
 def do_combinations(indexes, min_item, max_item):
