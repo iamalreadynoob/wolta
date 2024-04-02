@@ -194,3 +194,102 @@ def examine_time(model, X_train, y_train):
 
     consumed = end - start
     return consumed, model
+
+
+class WelkinClassification:
+    def __init__(self, strategy='travel', priority=None, limit=None):
+        self.min = {}
+        self.max = {}
+        self.strategy = strategy
+        self.priority = priority
+        self.limit = limit
+
+    def fit(self, X_train, y_train):
+        import sys
+
+        for i in range(y_train.shape[0]):
+            if not y_train[i] in self.min:
+                self.min[y_train[i]] = {}
+                self.max[y_train[i]] = {}
+
+                for j in range(X_train.shape[1]):
+                    self.min[y_train[i]][j] = sys.maxsize
+                    self.max[y_train[i]][j] = -sys.maxsize - 1
+
+            row = list(X_train[i])
+
+            for j in range(len(row)):
+                if row[j] < self.min[y_train[i]][j]:
+                    self.min[y_train[i]][j] = row[j]
+
+                elif row[j] > self.max[y_train[i]][j]:
+                    self.max[y_train[i]][j] = row[j]
+
+    def predict(self, X_test):
+        if self.strategy == 'travel':
+            import numpy as np
+            from random import randint
+
+            pred = []
+
+            stage_line = list(self.min.keys())
+            if self.priority is not None:
+                stage_line = self.priority
+
+            for i in range(X_test.shape[0]):
+                max_key = list(self.max.keys())[randint(0, len(list(self.max.keys())) - 1)]
+                max_zone = 0
+
+                row = list(X_test[i])
+
+                for output in stage_line:
+                    count = 0
+
+                    for j in range(X_test.shape[1]):
+                        if row[j] >= self.min[output][j] and row[j] <= self.max[output][j]:
+                            count += 1
+
+                    if count > max_zone:
+                        max_zone = count
+                        max_key = output
+
+                        if count == X_test.shape[0]:
+                            break
+
+                pred.append(max_key)
+
+            return np.array(pred)
+
+        elif self.strategy == 'limit' and self.limit is not None:
+            import numpy as np
+            from random import randint
+
+            pred = []
+
+            stage_line = list(self.min.keys())
+            if self.priority is not None:
+                stage_line = self.priority
+
+            for i in range(X_test.shape[0]):
+                max_key = list(self.max.keys())[randint(0, len(list(self.max.keys())) - 1)]
+                max_zone = 0
+
+                row = list(X_test[i])
+
+                for output in stage_line:
+                    count = 0
+
+                    for j in range(X_test.shape[1]):
+                        if row[j] >= self.min[output][j] and row[j] <= self.max[output][j]:
+                            count += 1
+
+                    if count > max_zone:
+                        max_zone = count
+                        max_key = output
+
+                        if count == X_test.shape[0] or count >= self.limit:
+                            break
+
+                pred.append(max_key)
+
+            return np.array(pred)
