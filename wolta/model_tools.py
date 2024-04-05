@@ -1,3 +1,6 @@
+import numpy as np
+
+
 def get_score(y_test, y_pred, metrics=None, average='weighted'):
     from sklearn.metrics import accuracy_score, f1_score, hamming_loss, jaccard_score, log_loss, matthews_corrcoef, precision_score, recall_score, zero_one_loss
 
@@ -293,3 +296,240 @@ class WelkinClassification:
                 pred.append(max_key)
 
             return np.array(pred)
+
+
+class DistRegressor:
+    import pandas as pd
+    import numpy as np
+
+    def __init__(self, verbose=True, clf_model=None, clf_params=None, reg_model=None, reg_params=None, efficiency='time', rus=True):
+        self.type_zero_regressor = None
+        self.type_one_regressor = None
+        self.type_two_regressor = None
+        self.rus = rus
+        self.verbose = verbose
+        self.efficiency = efficiency
+
+        self.clf_model = clf_model
+        self.reg_model = reg_model
+        self.reg_params = reg_params
+
+        if self.clf_model is not None:
+            if clf_params is None:
+                self.clf_model = clf_model()
+            else:
+                self.clf_model = clf_model(**clf_params)
+
+    def fit(self, X_train, y_train):
+        std = np.std(y_train)
+        amin = np.amin(y_train)
+        amax = np.amax(y_train)
+        mean = np.mean(y_train)
+
+        border_one = mean - std
+        border_two = mean + std
+
+        if self.verbose:
+            print('Basic calculations are completed')
+
+        clf_arr = []
+        one_side = 0
+        type_zero_X = []
+        type_one_X = []
+        type_two_X = []
+        type_zero_y = []
+        type_one_y = []
+        type_two_y = []
+
+        if self.efficiency == 'space':
+            for i in range(y_train.shape[0]):
+                if y_train[i] >= amin and y_train[i] <= border_one:
+                    clf_arr.append(0)
+                    one_side += 1
+                elif y_train[i] > border_one and y_train[i] < border_two:
+                    clf_arr.append(1)
+                else:
+                    clf_arr.append(2)
+
+            del type_zero_X, type_one_X, type_two_X, type_zero_y, type_one_y, type_two_y
+
+        elif self.efficiency == 'time':
+            for i in range(y_train.shape[0]):
+                if y_train[i] >= min and y_train[i] <= border_one:
+                    clf_arr.append(0)
+                    type_zero_X.append(list(X_train[i]))
+                    type_zero_y.append(y_train[i])
+                elif y_train[i] > border_one and y_train[i] < border_two:
+                    clf_arr.append(1)
+                    type_one_X.append(list(X_train[i]))
+                    type_one_y.append(y_train[i])
+                else:
+                    clf_arr.append(2)
+                    type_two_X.append(list(X_train[i]))
+                    type_two_y.append(y_train[i])
+
+            type_zero_X = np.array(type_zero_X)
+            type_one_X = np.array(type_one_X)
+            type_two_X = np.array(type_two_X)
+            type_zero_y = np.array(type_zero_y)
+            type_one_y = np.array(type_one_y)
+            type_two_y = np.array(type_two_y)
+
+        clf_arr = np.array(clf_arr)
+
+        if self.verbose:
+            print('Result array is ready for classification')
+
+        small_X = None
+        if self.rus:
+            from imblearn.under_sampling import RandomUnderSampler
+
+            strategy = {1: one_side}
+            rand = RandomUnderSampler(sampling_strategy=strategy)
+
+            small_X, clf_arr = rand.fit_resample(X_train, clf_arr)
+
+
+        if self.clf_model is None:
+            from catboost import CatBoostClassifier
+
+            self.clf_model = CatBoostClassifier(verbose=False, iterations=20)
+
+            if self.rus:
+                self.clf_model.fit(small_X, clf_arr)
+            else:
+                self.clf_model.fit(X_train, clf_arr)
+        else:
+            if self.rus:
+                self.clf_model.fit(small_X, clf_arr)
+            else:
+                self.clf_model.fit(X_train, clf_arr)
+
+        del small_X, clf_arr
+
+        if self.verbose:
+            print('Classification model has been trained')
+
+        if self.efficiency == 'space':
+            sub_X = []
+            sub_y = []
+            for i in range(X_train.shape[0]):
+                if y_train[i] >= amin and y_train[i] <= border_one:
+                    sub_X.append(list(X_train[i]))
+                    sub_y.append(y_train[i])
+
+            sub_X = np.array(sub_X)
+            sub_y = np.array(sub_y)
+
+            if self.reg_model is None:
+                from catboost import CatBoostRegressor
+
+                self.type_zero_regressor = CatBoostRegressor(verbose=False, iterations=20)
+                self.type_zero_regressor.fit(sub_X, sub_y)
+            else:
+                if self.reg_params is None:
+                    self.type_zero_regressor = self.reg_model()
+                else:
+                    self.type_zero_regressor = self.reg_model(**self.reg_params)
+
+                self.type_zero_regressor.fit(sub_X, sub_y)
+
+            sub_X = []
+            sub_y = []
+            for i in range(X_train.shape[0]):
+                if y_train[i] > border_one and y_train[i] < border_two:
+                    sub_X.append(list(X_train[i]))
+                    sub_y.append(y_train[i])
+
+            sub_X = np.array(sub_X)
+            sub_y = np.array(sub_y)
+
+            if self.reg_model is None:
+                from catboost import CatBoostRegressor
+
+                self.type_one_regressor = CatBoostRegressor(verbose=False, iterations=20)
+                self.type_one_regressor.fit(sub_X, sub_y)
+            else:
+                if self.reg_params is None:
+                    self.type_one_regressor = self.reg_model()
+                else:
+                    self.type_one_regressor = self.reg_model(**self.reg_params)
+
+                self.type_one_regressor.fit(sub_X, sub_y)
+
+            sub_X = []
+            sub_y = []
+            for i in range(X_train.shape[0]):
+                if y_train[i] >= border_two and y_train[i] <= amax:
+                    sub_X.append(list(X_train[i]))
+                    sub_y.append(y_train[i])
+
+            sub_X = np.array(sub_X)
+            sub_y = np.array(sub_y)
+
+            if self.reg_model is None:
+                from catboost import CatBoostRegressor
+
+                self.type_two_regressor = CatBoostRegressor(verbose=False, iterations=20)
+                self.type_two_regressor.fit(sub_X, sub_y)
+            else:
+                if self.reg_params is None:
+                    self.type_two_regressor = self.reg_model()
+                else:
+                    self.type_two_regressor = self.reg_model(**self.reg_params)
+
+                self.type_two_regressor.fit(sub_X, sub_y)
+
+        elif self.efficiency == 'time':
+            if self.reg_model is None:
+                from catboost import CatBoostRegressor
+
+                self.type_zero_regressor = CatBoostRegressor(verbose=False, iterations=20)
+                self.type_one_regressor = CatBoostRegressor(verbose=False, iterations=20)
+                self.type_two_regressor = CatBoostRegressor(verbose=False, iterations=20)
+
+                self.type_zero_regressor.fit(type_zero_X, type_zero_y)
+                del type_zero_X, type_zero_y
+
+                self.type_one_regressor.fit(type_one_X, type_one_y)
+                del type_one_X, type_one_y
+
+                self.type_two_regressor.fit(type_two_X, type_two_y)
+                del type_two_X, type_two_y
+            else:
+                if self.reg_params is None:
+                    self.type_zero_regressor = self.reg_model()
+                    self.type_one_regressor = self.reg_model()
+                    self.type_two_regressor = self.reg_model()
+                else:
+                    self.type_zero_regressor = self.reg_model(**self.reg_params)
+                    self.type_one_regressor = self.reg_model(**self.reg_params)
+                    self.type_two_regressor = self.reg_model(**self.reg_params)
+
+                self.type_zero_regressor.fit(type_zero_X, type_zero_y)
+                del type_zero_X, type_zero_y
+
+                self.type_one_regressor.fit(type_one_X, type_one_y)
+                del type_one_X, type_one_y
+
+                self.type_two_regressor.fit(type_two_X, type_two_y)
+                del type_two_X, type_two_y
+
+        if self.verbose:
+            print('Regression models have been trained')
+
+    def predict(self, X_test):
+        y_pred = []
+
+        for i in range(X_test.shape[0]):
+            category = self.clf_model.predict([X_test[i]])
+
+            if category == 0:
+                y_pred.append(self.type_zero_regressor.predict([X_test[i]]))
+            elif category == 1:
+                y_pred.append(self.type_one_regressor.predict([X_test[i]]))
+            else:
+                y_pred.append(self.type_two_regressor.predict([X_test[i]]))
+
+        y_pred = np.array(y_pred)
+        return y_pred
