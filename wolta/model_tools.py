@@ -299,10 +299,10 @@ class WelkinClassification:
 
 
 class DistRegressor:
-    import pandas as pd
     import numpy as np
 
-    def __init__(self, verbose=True, clf_model=None, clf_params=None, reg_model=None, reg_params=None, efficiency='time', rus=True):
+    def __init__(self, verbose=True, clf_model=None, clf_params=None, reg_model=None, reg_params=None,
+                 efficiency='time', rus=True):
         self.type_zero_regressor = None
         self.type_one_regressor = None
         self.type_two_regressor = None
@@ -322,12 +322,15 @@ class DistRegressor:
 
     def fit(self, X_train, y_train):
         std = np.std(y_train)
+        mean = np.mean(y_train)
         amin = np.amin(y_train)
         amax = np.amax(y_train)
-        mean = np.mean(y_train)
 
         border_one = mean - std
         border_two = mean + std
+
+        if amin >= border_one or amax <= border_two:
+            raise ValueError('There is no such a normal distribution!')
 
         if self.verbose:
             print('Basic calculations are completed')
@@ -343,7 +346,7 @@ class DistRegressor:
 
         if self.efficiency == 'space':
             for i in range(y_train.shape[0]):
-                if y_train[i] >= amin and y_train[i] <= border_one:
+                if y_train[i] <= border_one:
                     clf_arr.append(0)
                     one_side += 1
                 elif y_train[i] > border_one and y_train[i] < border_two:
@@ -355,7 +358,7 @@ class DistRegressor:
 
         elif self.efficiency == 'time':
             for i in range(y_train.shape[0]):
-                if y_train[i] >= min and y_train[i] <= border_one:
+                if y_train[i] <= border_one:
                     clf_arr.append(0)
                     type_zero_X.append(list(X_train[i]))
                     type_zero_y.append(y_train[i])
@@ -389,7 +392,6 @@ class DistRegressor:
 
             small_X, clf_arr = rand.fit_resample(X_train, clf_arr)
 
-
         if self.clf_model is None:
             from catboost import CatBoostClassifier
 
@@ -414,7 +416,7 @@ class DistRegressor:
             sub_X = []
             sub_y = []
             for i in range(X_train.shape[0]):
-                if y_train[i] >= amin and y_train[i] <= border_one:
+                if y_train[i] <= border_one:
                     sub_X.append(list(X_train[i]))
                     sub_y.append(y_train[i])
 
@@ -460,7 +462,7 @@ class DistRegressor:
             sub_X = []
             sub_y = []
             for i in range(X_train.shape[0]):
-                if y_train[i] >= border_two and y_train[i] <= amax:
+                if y_train[i] >= border_two:
                     sub_X.append(list(X_train[i]))
                     sub_y.append(y_train[i])
 
@@ -533,3 +535,14 @@ class DistRegressor:
 
         y_pred = np.array(y_pred)
         return y_pred
+
+    def is_data_normal(self, y):
+        amax = np.amax(y)
+        amin = np.amin(y)
+        mean = np.mean(y)
+        std = np.std(y)
+
+        if amin < mean - std and amax > mean + std:
+            return True
+        else:
+            return False
