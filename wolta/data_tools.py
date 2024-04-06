@@ -284,7 +284,7 @@ def create_chunks(path, sample_amount, target_dir=None, print_description=False,
             part += 1
 
 
-def make_normal(self, X, y, strategy='log'):
+def make_normal(X, y, strategy='log'):
     import numpy as np
 
     if strategy == 'log':
