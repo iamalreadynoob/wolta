@@ -282,3 +282,19 @@ def create_chunks(path, sample_amount, target_dir=None, print_description=False,
                 print('part {} is done'.format(str(part)))
 
             part += 1
+
+
+def make_normal(self, X, y, strategy='log'):
+    import numpy as np
+
+    if strategy == 'log':
+        X = np.log(X + 1)
+        y = np.log(y + 1)
+
+        return X, y
+
+    elif strategy == 'sqrt':
+        X = np.sqrt(X)
+        y = np.sqrt(y)
+
+        return X, y
