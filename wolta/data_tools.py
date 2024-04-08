@@ -1,3 +1,6 @@
+import numpy as np
+
+
 def col_types(df, print_columns=False):
     types = []
 
@@ -284,8 +287,121 @@ def create_chunks(path, sample_amount, target_dir=None, print_description=False,
             part += 1
 
 
+def transform_data(X, y, strategy='log-m'):
+    import numpy
+
+    if strategy == 'log':
+        X = np.log(X)
+        y = np.log(y)
+
+        return X, y
+
+    elif strategy == 'log-m':
+        amin_x = numpy.amin(X)
+        amin_y = numpy.amin(y)
+
+        X = np.log(X + amin_x + 1)
+        y = np.log(y + amin_y + 1)
+
+        return X, y, amin_x, amin_y
+
+    elif strategy == 'log2':
+        X = np.log2(X)
+        y = np.log2(y)
+
+        return X, y
+
+    elif strategy == 'log2-m':
+        amin_x = numpy.amin(X)
+        amin_y = numpy.amin(y)
+
+        X = np.log2(X + amin_x + 1)
+        y = np.log2(y + amin_y + 1)
+
+        return X, y, amin_x, amin_y
+
+    elif strategy == 'log10':
+        X = np.log10(X)
+        y = np.log10(y)
+
+        return X, y
+
+    elif strategy == 'log10-m':
+        amin_x = numpy.amin(X)
+        amin_y = numpy.amin(y)
+
+        X = np.log10(X + amin_x + 1)
+        y = np.log10(y + amin_y + 1)
+
+        return X, y, amin_x, amin_y
+
+    elif strategy == 'sqrt':
+        X = np.sqrt(X)
+        y = np.sqrt(y)
+
+        return X, y
+
+    elif strategy == 'sqrt-m':
+        amin_x = numpy.amin(X)
+        amin_y = numpy.amin(y)
+
+        X = np.sqrt(X + amin_x + 1)
+        y = np.sqrt(y + amin_y + 1)
+
+        return X, y, amin_x, amin_y
+
+    elif strategy == 'cbrt':
+        X = np.cbrt(X)
+        y = np.cbrt(y)
+
+        return X, y
+
+
+def transform_pred(y_pred, strategy='log-m', amin_y=0):
+    if strategy == 'log':
+        y_pred = np.exp(y_pred)
+
+    elif strategy == 'log-m':
+        y_pred = np.exp(y_pred) - amin_y - 1
+
+    elif strategy == 'log2':
+        y_pred = 2**y_pred
+
+    elif strategy == 'log2-m':
+        y_pred = 2**y_pred - amin_y - 1
+
+    elif strategy == 'log10':
+        y_pred = 10**y_pred
+
+    elif strategy == 'log10-m':
+        y_pred = 10**y_pred - amin_y - 1
+
+    elif strategy == 'sqrt':
+        y_pred = np.power(y_pred, 2)
+
+    elif strategy == 'sqrt-m':
+        y_pred = np.power(y_pred, 2) - amin_y - 1
+
+    elif strategy == 'cbrt':
+        y_pred = np.power(y_pred, 3)
+
+    elif strategy == 'cbrt-m':
+        y_pred = np.power(y_pred, 3) - amin_y - 1
+
+
+def make_categorical(y, strategy='normal', pieces=0):
+    if strategy == 'normal':
+        print("do something")
+
+    elif strategy == 'pie':
+        print("do something")
+
+
 def make_normal(X, y, strategy='log'):
     import numpy as np
+    import sys
+
+    sys.stderr.write('WARNING: This method has been deprecated in v0.1.8 and will be removed in v0.2.0')
 
     if strategy == 'log':
         X = np.log(X + 1)
