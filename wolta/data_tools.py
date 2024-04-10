@@ -389,12 +389,32 @@ def transform_pred(y_pred, strategy='log-m', amin_y=0):
         y_pred = np.power(y_pred, 3) - amin_y - 1
 
 
-def make_categorical(y, strategy='normal', pieces=0):
-    if strategy == 'normal':
-        print("do something")
+def make_categorical(y, strategy='normal'):
+    import numpy as np
 
-    elif strategy == 'pie':
-        print("do something")
+    if strategy == 'normal' or strategy == 'normal-extra':
+        amin = np.amin(y)
+        amax = np.amax(y)
+        std = np.std(y)
+        mean = np.mean(y)
+        border_one = mean - std
+        border_two = mean + std
+
+        if amin >= border_one or amax <= border_two:
+            raise ValueError('There is no such a normal distribution!')
+
+        for i in range(y.shape[0]):
+            if y[i] <= border_one:
+                y[i] = 0
+            elif y[i] >= border_two:
+                y[i] = 2
+            else:
+                y[i] = 1
+
+        if strategy == 'normal':
+            return y
+        else:
+            return y, amin, amax, std, mean, border_one, border_two
 
 
 def make_normal(X, y, strategy='log'):
@@ -414,3 +434,17 @@ def make_normal(X, y, strategy='log'):
         y = np.sqrt(y)
 
         return X, y
+
+
+def is_normal(y):
+    amin = np.amin(y)
+    amax = np.amax(y)
+    std = np.std(y)
+    mean = np.mean(y)
+    border_one = mean - std
+    border_two = mean + std
+
+    if amin >= border_one or amax <= border_two:
+        return False
+    else:
+        return True
