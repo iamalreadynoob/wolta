@@ -90,6 +90,58 @@ df['output'] = make_numerics(df['output'])
 
 ***
 
+### transform_data
+
+**Returns**:
+1. transformed X
+2. transformed y
+3. if strategy ends with 'm', amin_x
+4. if strategy ends with 'm', amin_y
+
+**Parameters**:
+
+* X
+* y
+* strategy, {'log', 'log-m', 'log2', 'log2-m', 'log10', 'log10-m', 'sqrt', 'sqrt-m', 'cbrt'}, by default 'log-m'
+
+If you concern about situations like sqrt(0) or log(0), use strategies which ends with 'm' (means manipulated).
+
+***
+
+### transform_pred
+
+This function is designed for make predictions realistic and handles back-transformation.
+
+**Returns**: back-transformed y
+
+**Parameters**:
+
+* y_pred
+* strategy, {'log', 'log-m', 'log2', 'log2-m', 'log10', 'log10-m', 'sqrt', 'sqrt-m', 'cbrt'}, by default 'log-m'
+* amin_y, int, by default 0. amin_y is used min y value in transform_data if data was manipulated and it is required if a strategy which ends with 'm' was selected.
+
+***
+
+### make_categorical
+
+It places regression outputs into three sub-classes according to mean and standard deviation. Normal distribution is required.
+
+**Returns**: 
+1. y
+the other outputs are returned if only normal-extra is selected
+2. the min value of array
+3. the max value of array
+4. the standard deviation of array
+5. the mean value of array
+6. the result of mean - standard deviation
+7. the result of mean + standard deviation
+
+**Parameters**:
+* y
+* strategy, {'normal', 'normal-extra'}, default by, 'normal'
+
+***
+
 ### create_chunks
 
 **Parameters**:
@@ -153,6 +205,16 @@ del df
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 X_train, X_test = scale_x(X_train, X_test)
 ```
+
+***
+
+### is_normal
+
+**Returns**: Boolean
+<br>
+if data has normal distribution returns true, else returns false
+<br>
+**Parameter**: y
 
 ***
 
@@ -348,6 +410,27 @@ This class has those functions:
 
 * fit(X_train, y_train)
 * predict(X_test), returns y_pred
+
+***
+
+### DistRegressor
+
+This regression approach provides a hybrid solution for problems which have output space in wide range thanks to normal distribution. 
+
+**Parameters**:
+* verbose, boolean, by default, True
+* clf_model, classification model class, by default, None (If it is None, CatBoostClassifier is used with default parameters except iterations, iterations has 20 as value)
+* clf_params, parameters for classification model in dict form, by default, None
+* reg_model, regression model, by default, None (If it is None, CatBoostRegressor is used with default parameters except iterations, iterations has 20 as value)
+* reg_params, parameters for regression model in dict form, by default, None
+
+This class has those functions:
+
+* fit(X_train, y_train)
+* predict(X_test), returns y_pred
+
+***
+
 
 ***
 
