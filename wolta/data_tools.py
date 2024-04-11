@@ -300,8 +300,8 @@ def transform_data(X, y, strategy='log-m'):
         amin_x = numpy.amin(X)
         amin_y = numpy.amin(y)
 
-        X = np.log(X + amin_x + 1)
-        y = np.log(y + amin_y + 1)
+        X = np.log(X + np.abs(amin_x) + 1)
+        y = np.log(y + np.abs(amin_y) + 1)
 
         return X, y, amin_x, amin_y
 
@@ -315,8 +315,8 @@ def transform_data(X, y, strategy='log-m'):
         amin_x = numpy.amin(X)
         amin_y = numpy.amin(y)
 
-        X = np.log2(X + amin_x + 1)
-        y = np.log2(y + amin_y + 1)
+        X = np.log2(X + np.abs(amin_x) + 1)
+        y = np.log2(y + np.abs(amin_y) + 1)
 
         return X, y, amin_x, amin_y
 
@@ -330,8 +330,8 @@ def transform_data(X, y, strategy='log-m'):
         amin_x = numpy.amin(X)
         amin_y = numpy.amin(y)
 
-        X = np.log10(X + amin_x + 1)
-        y = np.log10(y + amin_y + 1)
+        X = np.log10(X + np.abs(amin_x) + 1)
+        y = np.log10(y + np.abs(amin_y) + 1)
 
         return X, y, amin_x, amin_y
 
@@ -345,8 +345,8 @@ def transform_data(X, y, strategy='log-m'):
         amin_x = numpy.amin(X)
         amin_y = numpy.amin(y)
 
-        X = np.sqrt(X + amin_x + 1)
-        y = np.sqrt(y + amin_y + 1)
+        X = np.sqrt(X + np.abs(amin_x) + 1)
+        y = np.sqrt(y + np.abs(amin_y) + 1)
 
         return X, y, amin_x, amin_y
 
@@ -358,6 +358,8 @@ def transform_data(X, y, strategy='log-m'):
 
 
 def transform_pred(y_pred, strategy='log-m', amin_y=0):
+    amin_y = np.abs(amin_y)
+
     if strategy == 'log':
         y_pred = np.exp(y_pred)
 
@@ -387,6 +389,8 @@ def transform_pred(y_pred, strategy='log-m', amin_y=0):
 
     elif strategy == 'cbrt-m':
         y_pred = np.power(y_pred, 3) - amin_y - 1
+
+    return y_pred
 
 
 def make_categorical(y, strategy='normal'):
