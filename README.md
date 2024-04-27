@@ -90,6 +90,29 @@ df['output'] = make_numerics(df['output'])
 
 ***
 
+### make_null
+
+**Returns**: pandas dataframe or numpy array
+
+**Parameters**:
+
+* matrix (pandas dataframe or numpy array)
+* replace, string, the text which will converted to null
+* type, {'df', 'np'}, by default 'df'
+
+***
+
+### seek_null
+
+**Returns**: boolean
+
+**Parameters**:
+
+* df, pandas dataframe
+* print_columns, boolean, False by default
+
+***
+
 ### transform_data
 
 **Returns**:
@@ -298,6 +321,8 @@ Model Tools was designed for to get some results on models.
 * y_pred, _1D numpy array_
 * metrics, _list of string_, this list can only have values the table below:
 
+For 'clf':
+
 | value | full name      |
 | --- |----------------|
 | acc | accuracy score |
@@ -311,8 +336,31 @@ Model Tools was designed for to get some results on models.
 | zol | zero one loss |
 
 by default, ['acc']
+<br>
+
+For 'reg':
+
+| value   | full name                          |
+|---------|------------------------------------|
+| var     | explained variance                 |
+| max     | max error                          |
+| abs     | neg mean absolute error            |
+| sq      | neg mean squared error             |
+| rsq     | neg root mean squared error        |
+| log     | neg mean squared log error         |
+| rlog    | neg mean squared log error         |
+| medabs  | neg median absolute error          |
+| poisson | neg mean poisson deviance          |
+| gamma   | neg mean gamma deviance            |
+| per     | neg mean absolute percentage error |
+| d2abs   | d2 absolute error score            |
+| d2pin   | d2 pinball score                   |
+| d2twe   | d2 tweedie score                   |
+
+by default, ['sq']
 
 * average, string, {'weighted', 'micro', 'macro', 'binary', 'samples'}, by default, 'weighted'
+* algo_type, {'clf', 'reg'}, 'clf' by default
 
 ```python
 import numpy as np
@@ -347,6 +395,56 @@ from wolta.model_tools import get_avg_options
 
 print(get_avg_options())
 ```
+
+***
+
+### compare_models
+
+**Returns**: nothing, just prints out the results
+
+**Parameters**:
+
+* algo_type, {'clf', 'reg'}
+* algorithms, list of string, if the first element is 'all' then it gets results for every algorithm.
+
+for 'clf':
+
+| value | full name |
+|-------|-----------|
+| cat   | catboost  |
+| ada | adaboost  |
+| dtr | decision tree |
+| raf | random forest |
+| lbm | lightgbm |
+| ext | extra tree |
+| log | logistic regression |
+| knn | knn |
+| gnb | gaussian nb |
+| rdg | ridge |
+| bnb | bernoulli nb |
+| svc | svc |
+| per | perceptron |
+| mnb | multinomial nb |
+
+for 'reg':
+
+| value | full name         |
+|-------|-------------------|
+| cat   | catboost          |
+| ada   | adaboost          |
+| dtr   | decision tree     |
+| raf   | random forest     |
+| lbm   | lightgbm          |
+| ext   | extra tree        |
+| lin   | linear regression |
+| knn   | knn               |
+| svr   | svr               |
+
+* metrics, list of string, its values must be acceptable for get_score method
+* X_train
+* y_train
+* X_test
+* y_test
 
 ***
 
