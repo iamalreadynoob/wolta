@@ -452,3 +452,34 @@ def is_normal(y):
         return False
     else:
         return True
+
+
+def seek_null(df, print_columns=False):
+    null_columns = []
+
+    for col in df.columns:
+        if df[col].isna().sum() > 0:
+            null_columns.append(col)
+
+            if print_columns:
+                print('{} has {} null values'.format(col, str(df[col].isna().sum())))
+
+    return null_columns
+
+
+def make_null(matrix, replace, type='df'):
+    if type == 'df':
+        for i in range(matrix.shape[1]):
+            for j in range(matrix.shape[0]):
+                if matrix.iloc[j, i] == replace:
+                    matrix.iloc[j, i] = None
+
+        return matrix
+
+    elif type == 'np':
+        for i in range(matrix.shape[1]):
+            for j in range(matrix.shape[0]):
+                if matrix[j, i] == replace:
+                    matrix.iloc[j, i] = None
+
+        return matrix
