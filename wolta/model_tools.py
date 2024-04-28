@@ -2,8 +2,6 @@ import numpy as np
 
 
 def get_score(y_test, y_pred, metrics=None, average='weighted', algo_type='clf'):
-    from sklearn.metrics import accuracy_score, f1_score, hamming_loss, jaccard_score, log_loss, matthews_corrcoef, precision_score, recall_score, zero_one_loss, explained_variance_score, max_error, mean_absolute_error, mean_squared_error, root_mean_squared_error, mean_squared_log_error, root_mean_squared_log_error, median_absolute_error, mean_poisson_deviance, mean_gamma_deviance, mean_absolute_percentage_error, d2_absolute_error_score, d2_pinball_score, d2_tweedie_score
-
     if metrics is None:
         if algo_type == 'clf':
             metrics = ['acc']
@@ -16,6 +14,7 @@ def get_score(y_test, y_pred, metrics=None, average='weighted', algo_type='clf')
     if algo_type == 'clf':
         for metric in metrics:
             if metric == 'acc':
+                from sklearn.metrics import accuracy_score
                 score = accuracy_score(y_test, y_pred)
                 scores[metric] = score
 
@@ -25,6 +24,7 @@ def get_score(y_test, y_pred, metrics=None, average='weighted', algo_type='clf')
                     output += '\nAccuracy Score: {}'.format(str(score))
 
             elif metric == 'f1':
+                from sklearn.metrics import f1_score
                 score = f1_score(y_test, y_pred, average=average)
                 scores[metric] = score
 
@@ -34,6 +34,7 @@ def get_score(y_test, y_pred, metrics=None, average='weighted', algo_type='clf')
                     output += '\nF1 Score (weighted): {}'.format(str(score))
 
             elif metric == 'hamming':
+                from sklearn.metrics import hamming_loss
                 score = hamming_loss(y_test, y_pred)
                 scores[metric] = score
 
@@ -43,6 +44,7 @@ def get_score(y_test, y_pred, metrics=None, average='weighted', algo_type='clf')
                     output += '\nHamming Loss: {}'.format(str(score))
 
             elif metric == 'jaccard':
+                from sklearn.metrics import jaccard_score
                 score = jaccard_score(y_test, y_pred, average=average)
                 scores[metric] = score
 
@@ -52,6 +54,7 @@ def get_score(y_test, y_pred, metrics=None, average='weighted', algo_type='clf')
                     output += '\nJaccard: {}'.format(str(score))
 
             elif metric == 'log':
+                from sklearn.metrics import log_loss
                 score = log_loss(y_test, y_pred)
                 scores[metric] = score
 
@@ -61,6 +64,7 @@ def get_score(y_test, y_pred, metrics=None, average='weighted', algo_type='clf')
                     output += '\nLog Loss: {}'.format(str(score))
 
             elif metric == 'mcc':
+                from sklearn.metrics import matthews_corrcoef
                 score = matthews_corrcoef(y_test, y_pred)
                 scores[metric] = score
 
@@ -70,6 +74,7 @@ def get_score(y_test, y_pred, metrics=None, average='weighted', algo_type='clf')
                     output += '\nMCC: {}'.format(str(score))
 
             elif metric == 'precision':
+                from sklearn.metrics import precision_score
                 score = precision_score(y_test, y_pred, average=average)
                 scores[metric] = score
 
@@ -79,6 +84,7 @@ def get_score(y_test, y_pred, metrics=None, average='weighted', algo_type='clf')
                     output += '\nPrecision Score: {}'.format(str(score))
 
             elif metric == 'recall':
+                from sklearn.metrics import recall_score
                 score = recall_score(y_test, y_pred, average=average)
                 scores[metric] = score
 
@@ -88,6 +94,7 @@ def get_score(y_test, y_pred, metrics=None, average='weighted', algo_type='clf')
                     output += '\nRecall Score: {}'.format(str(score))
 
             elif metric == 'zol':
+                from sklearn.metrics import zero_one_loss
                 score = zero_one_loss(y_test, y_pred)
                 scores[metric] = score
 
@@ -99,6 +106,7 @@ def get_score(y_test, y_pred, metrics=None, average='weighted', algo_type='clf')
     elif algo_type == 'reg':
         for metric in metrics:
             if metric == 'var':
+                from sklearn.metrics import explained_variance_score
                 score = explained_variance_score(y_test, y_pred)
                 scores[metric] = score
 
@@ -108,6 +116,7 @@ def get_score(y_test, y_pred, metrics=None, average='weighted', algo_type='clf')
                     output += '\nExplained Variance Score: {}'.format(str(score))
 
             elif metric == 'max':
+                from sklearn.metrics import max_error
                 score = max_error(y_test, y_pred)
                 scores[metric] = score
 
@@ -117,6 +126,7 @@ def get_score(y_test, y_pred, metrics=None, average='weighted', algo_type='clf')
                     output += '\nMax Error: {}'.format(str(score))
 
             elif metric == 'abs':
+                from sklearn.metrics import mean_absolute_error
                 score = mean_absolute_error(y_test, y_pred)
                 scores[metric] = score
 
@@ -126,6 +136,7 @@ def get_score(y_test, y_pred, metrics=None, average='weighted', algo_type='clf')
                     output += '\nMean Absolute Error: {}'.format(str(score))
 
             elif metric == 'sq':
+                from sklearn.metrics import mean_squared_error
                 score = mean_squared_error(y_test, y_pred)
                 scores[metric] = score
 
@@ -135,6 +146,7 @@ def get_score(y_test, y_pred, metrics=None, average='weighted', algo_type='clf')
                     output += '\nMean Squared Error: {}'.format(str(score))
 
             elif metric == 'rsq':
+                from sklearn.metrics import root_mean_squared_error
                 score = root_mean_squared_error(y_test, y_pred)
                 scores[metric] = score
 
@@ -144,6 +156,7 @@ def get_score(y_test, y_pred, metrics=None, average='weighted', algo_type='clf')
                     output += '\nRoot Mean Squared Error: {}'.format(str(score))
 
             elif metric == 'log':
+                from sklearn.metrics import mean_squared_log_error
                 score = mean_squared_log_error(y_test, y_pred)
                 scores[metric] = score
 
@@ -153,6 +166,7 @@ def get_score(y_test, y_pred, metrics=None, average='weighted', algo_type='clf')
                     output += '\nMean Squared Log Error: {}'.format(str(score))
 
             elif metric == 'rlog':
+                from sklearn.metrics import root_mean_squared_log_error
                 score = root_mean_squared_log_error(y_test, y_pred)
                 scores[metric] = score
 
@@ -162,6 +176,7 @@ def get_score(y_test, y_pred, metrics=None, average='weighted', algo_type='clf')
                     output += '\nRoot Mean Squared Log Error: {}'.format(str(score))
 
             elif metric == 'medabs':
+                from sklearn.metrics import median_absolute_error
                 score = median_absolute_error(y_test, y_pred)
                 scores[metric] = score
 
@@ -171,6 +186,7 @@ def get_score(y_test, y_pred, metrics=None, average='weighted', algo_type='clf')
                     output += '\nMedian Absolute Error: {}'.format(str(score))
 
             elif metric == 'poisson':
+                from sklearn.metrics import mean_poisson_deviance
                 score = mean_poisson_deviance(y_test, y_pred)
                 scores[metric] = score
 
@@ -180,6 +196,7 @@ def get_score(y_test, y_pred, metrics=None, average='weighted', algo_type='clf')
                     output += '\nMean Poisson Deviance: {}'.format(str(score))
 
             elif metric == 'gamma':
+                from sklearn.metrics import mean_gamma_deviance
                 score = mean_gamma_deviance(y_test, y_pred)
                 scores[metric] = score
 
@@ -189,6 +206,7 @@ def get_score(y_test, y_pred, metrics=None, average='weighted', algo_type='clf')
                     output += '\nMean Gamma Deviance: {}'.format(str(score))
 
             elif metric == 'per':
+                from sklearn.metrics import mean_absolute_percentage_error
                 score = mean_absolute_percentage_error(y_test, y_pred)
                 scores[metric] = score
 
@@ -198,6 +216,7 @@ def get_score(y_test, y_pred, metrics=None, average='weighted', algo_type='clf')
                     output += '\nMean Absolute Percentage Error: {}'.format(str(score))
 
             elif metric == 'd2abs':
+                from sklearn.metrics import d2_absolute_error_score
                 score = d2_absolute_error_score(y_test, y_pred)
                 scores[metric] = score
 
@@ -207,6 +226,7 @@ def get_score(y_test, y_pred, metrics=None, average='weighted', algo_type='clf')
                     output += '\nD2 Absolute Error Score: {}'.format(str(score))
 
             elif metric == 'd2pin':
+                from sklearn.metrics import d2_pinball_score
                 score = d2_pinball_score(y_test, y_pred)
                 scores[metric] = score
 
@@ -216,6 +236,7 @@ def get_score(y_test, y_pred, metrics=None, average='weighted', algo_type='clf')
                     output += '\nD2 Pinball Score: {}'.format(str(score))
 
             elif metric == 'd2twe':
+                from sklearn.metrics import d2_tweedie_score
                 score = d2_tweedie_score(y_test, y_pred)
                 scores[metric] = score
 
