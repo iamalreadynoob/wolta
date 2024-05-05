@@ -483,3 +483,88 @@ def make_null(matrix, replace, type='df'):
                     matrix.iloc[j, i] = None
 
         return matrix
+
+
+def stat_sum(df, requested, only=None, exclude=None, get_dict=False, verbose=True):
+    process_columns = []
+
+    if only is None:
+        process_columns = list(df.columns)
+    else:
+        process_columns = list(only)
+
+    if exclude is not None:
+        for col in exclude:
+            if col in process_columns:
+                process_columns.remove(col)
+
+    if requested[0] == 'all':
+        requested = ['min', 'max', 'width', 'mean', 'std', 'med', 'var']
+
+    gen_results = {}
+
+    for col in process_columns:
+        results = {}
+
+        if verbose:
+            print(col)
+
+        for req in requested:
+            if req == 'min':
+                res = np.amin(df[col].values)
+                results[req] = res
+
+                if verbose:
+                    print('min: {}'.format(str(res)))
+
+            elif req == 'max':
+                res = np.amax(df[col].values)
+                results[req] = res
+
+                if verbose:
+                    print('max: {}'.format(str(res)))
+
+            elif req == 'width':
+                res_max = np.amax(df[col].values)
+                res_min = np.amin(df[col].values)
+                res = res_max - res_min
+                results[req] = res
+
+                if verbose:
+                    print('width: {}'.format(str(res)))
+
+            elif req == 'mean':
+                res = np.mean(df[col].values)
+                results[req] = res
+
+                if verbose:
+                    print('mean: {}'.format(str(res)))
+
+            elif req == 'std':
+                res = np.std(df[col].values)
+                results[req] = res
+
+                if verbose:
+                    print('std: {}'.format(str(res)))
+
+            elif req == 'med':
+                res = np.median(df[col].values)
+                results[req] = res
+
+                if verbose:
+                    print('median: {}'.format(str(res)))
+
+            elif req == 'var':
+                res = np.var(df[col].values)
+                results[req] = res
+
+                if verbose:
+                    print('variance: {}'.format(str(res)))
+
+        gen_results[col] = results
+
+        if verbose:
+            print('***')
+
+    if get_dict:
+        return gen_results
