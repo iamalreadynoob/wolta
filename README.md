@@ -165,6 +165,33 @@ the other outputs are returned if only normal-extra is selected
 
 ***
 
+### state_sum
+
+It gives information about features.
+
+**Returns**: dictionary which keys are feature names. (if get_dict param is True)
+
+**Parameters**:
+* df, pandas dataframe
+* requested, array of string
+
+| value | meaning                     |
+| --- |-----------------------------|
+| min | minimum value for a feature |
+| max | maximum value for a feature |
+| width | difference between max and min |
+| std | standard |
+| mean | mean |
+| med | median |
+| var | variance |
+
+* only, list of string, it gets results for these features only, by default None. If it is none, function gets results for all features
+* exclude, list of string, it gets results for except these features, by default None.
+* get_dict, by default False
+* verbose, by default True
+
+***
+
 ### create_chunks
 
 **Parameters**:
