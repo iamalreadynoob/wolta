@@ -568,3 +568,151 @@ def stat_sum(df, requested, only=None, exclude=None, get_dict=False, verbose=Tru
 
     if get_dict:
         return gen_results
+
+
+def find_deflection(y_test, y_pred, arr=True, avg=False, gap=None, gap_type='num', dif_type='f-i', avg_w_abs=True, success_indexes=False):
+    if arr == True or avg == True or gap is not None:
+        diffs = []
+
+        first = None
+        second = None
+
+        if dif_type == 'f-i':
+            first = y_pred
+            second = y_test
+        elif dif_type == 'i-f':
+            first = y_test
+            second = y_pred
+        else:
+            first = y_pred
+            second = y_test
+
+        for i in range(y_test.shape[0]):
+            diffs.append(first[i] - second[i])
+
+        diffs = np.array(diffs)
+
+        if dif_type == 'abs':
+            diffs = np.abs(diffs)
+
+        if arr == True and avg == False and gap is None:
+            return diffs
+
+        if avg == True:
+            avg_score = 0
+
+            tot_arr = diffs
+            if dif_type != 'abs' and avg_w_abs == True:
+                tot_arr = np.abs(diffs)
+
+            for i in range(diffs.shape[0]):
+                avg_score += tot_arr[i]
+
+            avg_score /= diffs.shape[0]
+
+            if arr == True and avg == True and gap is None:
+                return diffs, avg_score
+
+            if arr == False and avg == True and gap is None:
+                return avg_score
+
+            indexes = []
+
+            if gap_type == 'exact':
+                for i in range(y_test.shape[0]):
+                    if y_test[i] == y_pred[i]:
+                        indexes.append(i)
+            else:
+                for i in range(y_test.shape[0]):
+                    lowest = None
+                    highest = None
+
+                    if gap_type == 'num':
+                        lowest = y_test[i] - gap
+                        highest = y_test[i] + gap
+                    elif gap_type == 'num+':
+                        lowest = y_test[i]
+                        highest = y_test[i] + gap
+                    elif gap_type == 'num-':
+                        lowest = y_test[i] - gap
+                        highest = y_test[i]
+                    elif gap_type == 'per':
+                        lowest = y_test[i] * (100 - gap) / 100
+                        highest = y_test[i] * (100 + gap) / 100
+                    elif gap_type == 'per+':
+                        lowest = y_test[i]
+                        highest = y_test[i] * (100 + gap) / 100
+                    elif gap_type == 'per-':
+                        lowest = y_test[i] * (100 - gap) / 100
+                        highest = y_test[i]
+
+                    if highest < lowest:
+                        temp = lowest
+                        lowest = highest
+                        highest = temp
+
+                    if lowest <= y_pred[i] <= highest:
+                        indexes.append(i)
+
+            if arr == True and avg == True and gap is not None:
+                if success_indexes == True:
+                    return diffs, avg_score, len(indexes), indexes
+                else:
+                    return diffs, avg_score, len(indexes)
+
+            if arr == False and avg == True and gap is not None:
+                if success_indexes == True:
+                    return avg_score, len(indexes), indexes
+                else:
+                    return avg_score, len(indexes)
+
+        if gap is not None:
+            indexes = []
+
+            if gap_type == 'exact':
+                for i in range(y_test.shape[0]):
+                    if y_test[i] == y_pred[i]:
+                        indexes.append(i)
+            else:
+                for i in range(y_test.shape[0]):
+                    lowest = None
+                    highest = None
+
+                    if gap_type == 'num':
+                        lowest = y_test[i] - gap
+                        highest = y_test[i] + gap
+                    elif gap_type == 'num+':
+                        lowest = y_test[i]
+                        highest = y_test[i] + gap
+                    elif gap_type == 'num-':
+                        lowest = y_test[i] - gap
+                        highest = y_test[i]
+                    elif gap_type == 'per':
+                        lowest = y_test[i] * (100 - gap) / 100
+                        highest = y_test[i] * (100 + gap) / 100
+                    elif gap_type == 'per+':
+                        lowest = y_test[i]
+                        highest = y_test[i] * (100 + gap) / 100
+                    elif gap_type == 'per-':
+                        lowest = y_test[i] * (100 - gap) / 100
+                        highest = y_test[i]
+
+                    if highest < lowest:
+                        temp = lowest
+                        lowest = highest
+                        highest = temp
+
+                    if lowest <= y_pred[i] <= highest:
+                        indexes.append(i)
+
+            if arr == True and avg == False:
+                if success_indexes == True:
+                    return diffs, len(indexes), indexes
+                else:
+                    return diffs, len(indexes)
+
+            if arr == False and avg == False:
+                if success_indexes == True:
+                    return len(indexes), indexes
+                else:
+                    return len(indexes)
