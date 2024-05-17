@@ -113,6 +113,46 @@ df['output'] = make_numerics(df['output'])
 
 ***
 
+### find_deflection
+
+**Returns**:
+
+1. differences, 1D numpy array, if arr parameter is True
+2. average, average difference between predictions and actual values, if avg is True
+3. amount of succeeded predictions, the amount of predictions which in acceptable range, if gap is not None
+4. indexes of succeeded predictions in y_pred, if success_indexes is True
+
+**Parameters**:
+* y_test
+* y_pred
+* arr, True by default
+* avg, False by default
+* gap, None by default, if it is not None then it must be positive
+* gap_type, the type of usage gap value in the creation of accepted range as 'successful'
+
+| value | meaning                                                                     |
+| --- |-----------------------------------------------------------------------------|
+| exact | prediction and actual value must be same                                    |
+| num | for succession must be 'actual - gap <= prediction <= actual + gap'         |
+| num+ | for succession must be 'actual <= prediction <= actual + gap'               |
+| num- | for succession must be 'actual - gap <= prediction <= actual'               |
+| per | for succession must be 'actual * (100 - gap) / 100 <= prediction <= actual * (100 + gap) / 100' |
+| per+ | for succession must be 'actual <= prediction <= actual * (100 + gap) / 100' |
+| per- | for succession must be 'actual * (100 - gap) / 100 <= prediction <= actual' |
+
+* dif_type, indicates the way of calculation of difference between prediction and actual value. 'f-i' by default.
+
+| value | meaning |
+| --- | --- |
+| f-i | difference = prediction - actual |
+| i-f | difference = actual - prediction |
+| abs | absolute value |
+
+* avg_w_abs, True by default, indicates the way of calculation of average difference, using difference array with absolute values or not
+* success_indexes, False by default
+
+***
+
 ### transform_data
 
 **Returns**:
