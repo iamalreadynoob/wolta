@@ -759,7 +759,7 @@ def compare_models(algo_type, algorithms, metrics, X_train, y_train, X_test, y_t
                 print('***')
 
             elif algo == 'lbm':
-                model = LGBMClassifier()
+                model = LGBMClassifier(verbosity=-1)
                 model.fit(X_train, y_train)
                 y_pred = model.predict(X_test)
 
@@ -900,7 +900,7 @@ def compare_models(algo_type, algorithms, metrics, X_train, y_train, X_test, y_t
                 print('***')
 
             elif algo == 'lbm':
-                model = LGBMRegressor()
+                model = LGBMRegressor(verbosity=-1)
                 model.fit(X_train, y_train)
                 y_pred = model.predict(X_test)
 
