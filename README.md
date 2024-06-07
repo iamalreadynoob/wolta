@@ -153,6 +153,17 @@ df['output'] = make_numerics(df['output'])
 
 ***
 
+### extract_float
+
+If the column contains float/int data but it contains string type symbols such as dollar sign and comma, this function makes it completely translated.
+
+**Returns**: pandas dataframe column
+**Parameters**:
+1. pandas dataframe column
+2. symbols, the list of things that will be deleted
+
+***
+
 ### transform_data
 
 **Returns**:
