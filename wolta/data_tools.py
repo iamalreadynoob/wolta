@@ -720,7 +720,7 @@ def find_deflection(y_test, y_pred, arr=True, avg=False, gap=None, gap_type='num
 
 def extract_float(column, symbols):
     for i in range(column.shape[0]):
-        if column[i] != np.nan and column[i] is None:
+        if column[i] != np.nan or column[i] is None:
             for sym in symbols:
                 column.values[i] = str(column.values[i]).replace(sym, '')
 
