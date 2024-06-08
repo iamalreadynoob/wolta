@@ -2,7 +2,7 @@
 
 Wolta is designed for making simplify the frequently used processes which includes Pandas, Numpy and Scikit-Learn in Machine Learning.
 <br><br>
-Currently there are four modules inside the library, which are 'data_tools', 'model_tools', 'progressive_tools' and 'feature_tools'
+Currently there are four modules inside the library, which are 'data_tools', 'model_tools', 'progressive_tools', 'feature_tools' and 'visual_tools'
 
 ## Installation
 
@@ -150,6 +150,27 @@ df['output'] = make_numerics(df['output'])
 
 * avg_w_abs, True by default, indicates the way of calculation of average difference, using difference array with absolute values or not
 * success_indexes, False by default
+
+***
+
+### list_deletings
+
+It cleans dataframe from features that should be deleted.
+
+**Returns**:
+1. pandas dataframe
+2. string list, the list of might be deleted feature names, it is returned only if return_extra is True
+**Parameters**:
+1. df, pandas dataframe
+2. extra, list of string, the list of the feature names that will be deleted directly, by default None
+3. del_null, delete or not delete features that has too many null values, by default True
+4. null_tolerance, creates the limit indicator in the way of null_tolerance% of whole sample amount, by default 20
+5. del_single, delete or not delete features that has single value, by default True
+6. del_almost_single, delete or not delete features that has nearly single value, by default False
+7. almost_tolerance, creates the limit indicator in the way of almost_tolerance% of whole sample amount, by default 50
+8. suggest_extra, investigates string features that has too many unique data or not and points them, by default True
+9. return_extra, if suggest_extra and this are True, returns array the list of feature names that might be deleted, by default False
+10. unique_tolerance, creates the limit indicator in the way of st_tolerance% of whole sample amount, by default 10
 
 ***
 
@@ -738,7 +759,7 @@ percentage_log, metrics_log = path_chain(paths, RandomForestClassifier, X_test, 
 
 ## Feature Tools
 
-This module is about to manipulating features in datasets.
+This module is designed for manipulating features in datasets.
 
 ### quest_selection
 
@@ -760,3 +781,19 @@ The next process 'trials' times creates combinations with random amounts of pass
 * params, dictionary, if model has parameters, they initialize it here, default by, None
 * normal_acc, float, default by, None. If it is None then it is calculated first of all
 * trials, int, default by, 100
+
+***
+
+## Feature Tools
+
+This module is designed for visualizing the inputs and results
+
+### make_table
+
+**Returns**: string, md code for table
+**Parameters**:
+* mode, 'sheet' or 'nx2'
+* inputs, it is used if 'sheet' is selected, arrays of list of rows or columns
+* inputs_type, indicates the type of arrays in inputs, the value must be 'row' or 'column'
+* first_column, it is used if 'nx2' is selected. It indicates the first column
+* filler, it is used if 'nx2' is selected. The second column is filled with it
