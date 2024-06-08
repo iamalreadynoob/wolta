@@ -727,3 +727,66 @@ def extract_float(column, symbols):
             column.values[i] = float(column.values[i])
 
     return column
+
+
+def list_deletings(df, extra=None, del_null=True, null_tolerance=20, del_single=True, del_almost_single=False, almost_tolerance=50, suggest_extra=True, return_extra=False, unique_tolerance=10):
+    will = None
+
+    if extra is not None:
+        for ftr in extra:
+            del df[ftr]
+
+    if del_null is True:
+        tol = df.shape[0] * null_tolerance // 100
+        print('The maximum tolerated null value amount is {}'.format(str(tol)))
+
+        will_del = []
+        for col in df.columns:
+            amnt = df[col].isna().sum()
+            if amnt > tol:
+                will_del.append(str(col))
+                print('{} will be deleted because it has {} null values and this is {} values more than tolerance'.format(str(col), str(amnt), str(amnt - tol)))
+
+        for col in will_del:
+            del df[col]
+
+    if del_single is True:
+        will_del = []
+
+        for col in df.columns:
+            if len(list(df[col].unique())) == 1:
+                will_del.append(str(col))
+                print('{} will be deleted because it has single value'.format(str(col)))
+
+        for col in will_del:
+            del df[col]
+
+    if del_almost_single is True:
+        will_del = []
+        tol = df.shape[0] * almost_tolerance // 100
+        print('The maximum tolerated same value amount is {}'.format(str(tol)))
+
+        for col in df.columns:
+            if df[col].value_counts().max() > tol:
+                will_del.append(col)
+                print('{} will be deleted because it has single (almost) value'.format(str(col)))
+
+        for col in will_del:
+            del df[col]
+
+    if suggest_extra is True:
+        tol = df.shape[0] * unique_tolerance // 100
+        print('The maximum tolerated unique value amount is {} in string data'.format(str(tol)))
+        will = []
+
+        for col in df.columns:
+            if str(df[col].dtype).__contains__('str') or str(df[col].dtype).__contains__('obj'):
+                uniq = len(list(df[col].unique()))
+                if uniq > tol:
+                    will.append(col)
+                    print('{} might be deleted because it has {} unique values and this is {} values more than tolerance'.format(str(col), str(uniq), str(uniq - tol)))
+
+    if return_extra is True:
+        return df, will
+    else:
+        return df
