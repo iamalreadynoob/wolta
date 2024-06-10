@@ -790,3 +790,61 @@ def list_deletings(df, extra=None, del_null=True, null_tolerance=20, del_single=
         return df, will
     else:
         return df
+
+
+def col_counts(df, exclude=None, only=None):
+    if only is not None:
+        for col in df.columns:
+            if col in only:
+                print(df[col].value_counts())
+                print('***')
+
+    elif exclude is not None:
+        for col in df.columns:
+            if not col in exclude:
+                print(df[col].value_counts())
+                print('***')
+
+
+def check_similarity(col1, col2):
+  similar = True
+  connections = {}
+  col1 = list(col1)
+  col2 = list(col2)
+
+  for i in range(len(col1)):
+    if col1[i] in connections and connections[col1[i]] != col2[i]:
+      similar = False
+      break
+    else:
+      connections[col1[i]] = col2[i]
+
+  return similar
+
+
+def find_broke(column, dtype=float, get_indexes=True, get_words=False, verbose=True, verbose_limit=10):
+    limit = 0
+    indexes = []
+    words = []
+
+    column = list(column)
+
+    for i in range(len(column)):
+        try:
+            temp = dtype(column[i])
+        except:
+            if verbose is True and limit < verbose_limit:
+                print(column[i])
+                limit += 1
+
+            if get_indexes is True:
+                indexes.append(i)
+            if get_words is True:
+                words.append(column[i])
+
+    if get_indexes is True and get_words is True:
+        return indexes, words
+    elif get_indexes is True:
+        return indexes
+    elif get_words is True:
+        return words
