@@ -237,7 +237,7 @@ the other outputs are returned if only normal-extra is selected
 
 ***
 
-### state_sum
+### stat_sum
 
 It gives information about features.
 
@@ -297,6 +297,47 @@ from wolta.data_tools import unique_amounts
 df = pd.read_csv('data.csv')
 amounts = unique_amounts(df)
 ```
+
+***
+
+### col_counts
+
+It prints out the value counts for each column (if exclude and only are None)
+
+**Parameters**:
+* df, pandas dataframe
+* exclude, list of string, it prints out columns except indicated ones, by default None
+* only, list of string, it prints out columns only indicated ones, by default None
+
+***
+
+### check_similarity
+
+It checks two column holds same information with same or different values.
+
+**Returns**: boolean, if True they are same, if False they are not
+
+**Parameters**:
+* col1, 1D array
+* col2, 1D array which has same length with col1 
+
+***
+
+### find_broke
+
+It investigates the column that should be in X datatype instead Y.
+
+**Returns**:
+1. indexes, list of integer, if get_indexes is True
+2. words, list of elements, if get_words is True
+
+**Parameters**:
+* column, 1D array
+* dtype, datatype, by default float
+* get_indexes, boolean, by default True
+* get_words, boolean, by default False
+* verbose, boolean, by default True
+* verbose_limit, integer, by default 10, prints out this amount of broken values on the console
 
 ***
 
