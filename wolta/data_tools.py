@@ -848,3 +848,105 @@ def find_broke(column, dtype=float, get_indexes=True, get_words=False, verbose=T
         return indexes
     elif get_words is True:
         return words
+
+
+def multi_split(df, test_size, output, threshold_set):
+    from sklearn.feature_selection import VarianceThreshold as vart
+    import pandas as pd
+
+    test_size = test_size * 100
+
+    temp = df.sample(frac=1)
+    uniqs = list(df[output].unique())
+
+    X_trains = []
+    X_tests = []
+
+    y_train = None
+    y_test = None
+
+    train = None
+    test = None
+
+    for uniq in uniqs:
+        sub = temp[temp[output] == uniq]
+        testlim = int(sub.shape[0] * test_size / 100)
+
+        if test is None:
+            test = sub.iloc[:testlim, :]
+            train = sub.iloc[testlim:, :]
+        else:
+            test = pd.concat([test, sub.iloc[:testlim, :]])
+            train = pd.concat([train, sub.iloc[testlim:, :]])
+
+    y_train = train[output].values
+    del train[output]
+    X_trains.append(train.values)
+    del train
+
+    y_test = test[output].values
+    del test[output]
+    X_tests.append(test.values)
+    del test
+
+    for p in threshold_set:
+        sub = temp.copy()
+
+        suby = sub[output].values
+        del sub[output]
+        subx = sub.values
+        del sub
+
+        sel = vart(threshold=(p * (1 - p)))
+        subx = sel.fit_transform(subx)
+
+        sub = pd.DataFrame(subx)
+        sub[output] = suby
+
+        train = None
+        test = None
+
+        for uniq in uniqs:
+            subt = sub[sub[output] == uniq]
+            testlim = int(subt.shape[0] * test_size / 100)
+
+            if test is None:
+                test = subt.iloc[:testlim, :]
+                train = subt.iloc[testlim:, :]
+            else:
+                test = pd.concat([test, subt.iloc[:testlim, :]])
+                train = pd.concat([train, subt.iloc[testlim:, :]])
+
+        y_train = train[output].values
+        del train[output]
+        X_trains.append(train.values)
+        del train
+
+        y_test = test[output].values
+        del test[output]
+        X_tests.append(test.values)
+        del test
+
+    return X_trains, X_tests, y_train, y_test
+
+
+def expand_df(df, output, sampling_strategy):
+    from imblearn.over_sampling import SMOTE as smote
+    import pandas as pd
+
+    temp = df.copy()
+    cols = list(temp.columns)
+    cols.remove(output)
+
+    y = temp[output].values
+    del temp[output]
+    X = temp.values
+    del temp
+
+    sm = smote(sampling_strategy=sampling_strategy)
+    X, y = sm.fit_resample(X, y)
+
+    temp = pd.DataFrame(X, columns=cols)
+    temp[output] = y
+
+    return temp
