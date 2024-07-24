@@ -7,7 +7,7 @@ here = os.path.abspath(os.path.dirname(__file__))
 with codecs.open(os.path.join(here, "README.md"), encoding="utf-8") as fh:
     long_description = "\n" + fh.read()
 
-VERSION = '0.2.7'
+VERSION = '0.2.8'
 DESCRIPTION = 'Data Science Library'
 LONG_DESCRIPTION = 'A package for data science'
 
@@ -20,7 +20,7 @@ setup(
     long_description_content_type="text/markdown",
     long_description=long_description,
     packages=find_packages(),
-    install_requires=['scikit-learn', 'pandas', 'numpy', 'hyperopt', 'catboost', 'imblearn', 'lightgbm'],
+    install_requires=['scikit-learn', 'pandas', 'numpy', 'hyperopt', 'catboost', 'imblearn', 'lightgbm', 'matplotlib'],
     keywords=['python', 'machine', 'learning', 'machine learning', 'data science', 'data'],
     py_modules=['data_tools', 'model_tools', 'progressive_tools', 'feature_tools'],
     classifiers=[
