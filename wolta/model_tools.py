@@ -701,7 +701,9 @@ class DistRegressor:
             return False
 
 
-def compare_models(algo_type, algorithms, metrics, X_train, y_train, X_test, y_test):
+def compare_models(algo_type, algorithms, metrics, X_train, y_train, X_test, y_test, get_result=False):
+    results = {}
+
     if algo_type == 'clf':
         from catboost import CatBoostClassifier
         from sklearn.ensemble import AdaBoostClassifier
@@ -728,7 +730,7 @@ def compare_models(algo_type, algorithms, metrics, X_train, y_train, X_test, y_t
                 y_pred = model.predict(X_test)
 
                 print('CatBoost')
-                get_score(y_test, y_pred, metrics)
+                results[algo] = get_score(y_test, y_pred, metrics)
                 print('***')
 
             elif algo == 'ada':
@@ -737,7 +739,7 @@ def compare_models(algo_type, algorithms, metrics, X_train, y_train, X_test, y_t
                 y_pred = model.predict(X_test)
 
                 print('AdaBoost')
-                get_score(y_test, y_pred, metrics)
+                results[algo] = get_score(y_test, y_pred, metrics)
                 print('***')
 
             elif algo == 'dtr':
@@ -746,7 +748,7 @@ def compare_models(algo_type, algorithms, metrics, X_train, y_train, X_test, y_t
                 y_pred = model.predict(X_test)
 
                 print('Decision Tree')
-                get_score(y_test, y_pred, metrics)
+                results[algo] = get_score(y_test, y_pred, metrics)
                 print('***')
 
             elif algo == 'raf':
@@ -755,7 +757,7 @@ def compare_models(algo_type, algorithms, metrics, X_train, y_train, X_test, y_t
                 y_pred = model.predict(X_test)
 
                 print('Random Forest')
-                get_score(y_test, y_pred, metrics)
+                results[algo] = get_score(y_test, y_pred, metrics)
                 print('***')
 
             elif algo == 'lbm':
@@ -764,7 +766,7 @@ def compare_models(algo_type, algorithms, metrics, X_train, y_train, X_test, y_t
                 y_pred = model.predict(X_test)
 
                 print('LightGBM')
-                get_score(y_test, y_pred, metrics)
+                results[algo] = get_score(y_test, y_pred, metrics)
                 print('***')
 
             elif algo == 'ext':
@@ -773,7 +775,7 @@ def compare_models(algo_type, algorithms, metrics, X_train, y_train, X_test, y_t
                 y_pred = model.predict(X_test)
 
                 print('Extra Tree')
-                get_score(y_test, y_pred, metrics)
+                results[algo] = get_score(y_test, y_pred, metrics)
                 print('***')
 
             elif algo == 'log':
@@ -782,7 +784,7 @@ def compare_models(algo_type, algorithms, metrics, X_train, y_train, X_test, y_t
                 y_pred = model.predict(X_test)
 
                 print('Logistic Regression')
-                get_score(y_test, y_pred, metrics)
+                results[algo] = get_score(y_test, y_pred, metrics)
                 print('***')
 
             elif algo == 'knn':
@@ -791,7 +793,7 @@ def compare_models(algo_type, algorithms, metrics, X_train, y_train, X_test, y_t
                 y_pred = model.predict(X_test)
 
                 print('KNN')
-                get_score(y_test, y_pred, metrics)
+                results[algo] = get_score(y_test, y_pred, metrics)
                 print('***')
 
             elif algo == 'gnb':
@@ -800,7 +802,7 @@ def compare_models(algo_type, algorithms, metrics, X_train, y_train, X_test, y_t
                 y_pred = model.predict(X_test)
 
                 print('GaussianNB')
-                get_score(y_test, y_pred, metrics)
+                results[algo] = get_score(y_test, y_pred, metrics)
                 print('***')
 
             elif algo == 'rdg':
@@ -809,7 +811,7 @@ def compare_models(algo_type, algorithms, metrics, X_train, y_train, X_test, y_t
                 y_pred = model.predict(X_test)
 
                 print('Ridge')
-                get_score(y_test, y_pred, metrics)
+                results[algo] = get_score(y_test, y_pred, metrics)
                 print('***')
 
             elif algo == 'bnb':
@@ -818,7 +820,7 @@ def compare_models(algo_type, algorithms, metrics, X_train, y_train, X_test, y_t
                 y_pred = model.predict(X_test)
 
                 print('BernoulliNB')
-                get_score(y_test, y_pred, metrics)
+                results[algo] = get_score(y_test, y_pred, metrics)
                 print('***')
 
             elif algo == 'svc':
@@ -827,7 +829,7 @@ def compare_models(algo_type, algorithms, metrics, X_train, y_train, X_test, y_t
                 y_pred = model.predict(X_test)
 
                 print('SVC')
-                get_score(y_test, y_pred, metrics)
+                results[algo] = get_score(y_test, y_pred, metrics)
                 print('***')
 
             elif algo == 'per':
@@ -836,7 +838,7 @@ def compare_models(algo_type, algorithms, metrics, X_train, y_train, X_test, y_t
                 y_pred = model.predict(X_test)
 
                 print('Perceptron')
-                get_score(y_test, y_pred, metrics)
+                results[algo] = get_score(y_test, y_pred, metrics)
                 print('***')
 
             elif algo == 'mnb':
@@ -845,7 +847,7 @@ def compare_models(algo_type, algorithms, metrics, X_train, y_train, X_test, y_t
                 y_pred = model.predict(X_test)
 
                 print('MultinomialNB')
-                get_score(y_test, y_pred, metrics)
+                results[algo] = get_score(y_test, y_pred, metrics)
                 print('***')
 
     elif algo_type == 'reg':
@@ -869,7 +871,7 @@ def compare_models(algo_type, algorithms, metrics, X_train, y_train, X_test, y_t
                 y_pred = model.predict(X_test)
 
                 print('CatBoost')
-                get_score(y_test, y_pred, metrics, algo_type='reg')
+                results[algo] = get_score(y_test, y_pred, metrics, algo_type='reg')
                 print('***')
 
             elif algo == 'ada':
@@ -878,7 +880,7 @@ def compare_models(algo_type, algorithms, metrics, X_train, y_train, X_test, y_t
                 y_pred = model.predict(X_test)
 
                 print('AdaBoost')
-                get_score(y_test, y_pred, metrics, algo_type='reg')
+                results[algo] = get_score(y_test, y_pred, metrics, algo_type='reg')
                 print('***')
 
             elif algo == 'dtr':
@@ -887,7 +889,7 @@ def compare_models(algo_type, algorithms, metrics, X_train, y_train, X_test, y_t
                 y_pred = model.predict(X_test)
 
                 print('Decision Tree')
-                get_score(y_test, y_pred, metrics, algo_type='reg')
+                results[algo] = get_score(y_test, y_pred, metrics, algo_type='reg')
                 print('***')
 
             elif algo == 'raf':
@@ -896,7 +898,7 @@ def compare_models(algo_type, algorithms, metrics, X_train, y_train, X_test, y_t
                 y_pred = model.predict(X_test)
 
                 print('Random Forest')
-                get_score(y_test, y_pred, metrics, algo_type='reg')
+                results[algo] = get_score(y_test, y_pred, metrics, algo_type='reg')
                 print('***')
 
             elif algo == 'lbm':
@@ -905,7 +907,7 @@ def compare_models(algo_type, algorithms, metrics, X_train, y_train, X_test, y_t
                 y_pred = model.predict(X_test)
 
                 print('LightGBM')
-                get_score(y_test, y_pred, metrics, algo_type='reg')
+                results[algo] = get_score(y_test, y_pred, metrics, algo_type='reg')
                 print('***')
 
             elif algo == 'ext':
@@ -914,7 +916,7 @@ def compare_models(algo_type, algorithms, metrics, X_train, y_train, X_test, y_t
                 y_pred = model.predict(X_test)
 
                 print('Extra Tree')
-                get_score(y_test, y_pred, metrics, algo_type='reg')
+                results[algo] = get_score(y_test, y_pred, metrics, algo_type='reg')
                 print('***')
 
             elif algo == 'lin':
@@ -923,7 +925,7 @@ def compare_models(algo_type, algorithms, metrics, X_train, y_train, X_test, y_t
                 y_pred = model.predict(X_test)
 
                 print('Linear Regression')
-                get_score(y_test, y_pred, metrics, algo_type='reg')
+                results[algo] = get_score(y_test, y_pred, metrics, algo_type='reg')
                 print('***')
 
             elif algo == 'knn':
@@ -932,7 +934,7 @@ def compare_models(algo_type, algorithms, metrics, X_train, y_train, X_test, y_t
                 y_pred = model.predict(X_test)
 
                 print('KNN')
-                get_score(y_test, y_pred, metrics, algo_type='reg')
+                results[algo] = get_score(y_test, y_pred, metrics, algo_type='reg')
                 print('***')
 
             elif algo == 'svr':
@@ -941,5 +943,156 @@ def compare_models(algo_type, algorithms, metrics, X_train, y_train, X_test, y_t
                 y_pred = model.predict(X_test)
 
                 print('SVR')
-                get_score(y_test, y_pred, metrics, algo_type='reg')
+                results[algo] = get_score(y_test, y_pred, metrics, algo_type='reg')
                 print('***')
+
+    if get_result is True:
+        return results
+
+
+def get_best_model(scores, rel_metric, algo_type, X_train, y_train, behavior='min-best', verbose=True):
+    model = None
+    fit_algo = None
+    fit_metrics = None
+
+    if behavior == 'min-best':
+        for algo in scores:
+            if fit_metrics is None:
+                fit_algo = algo
+                fit_metrics = scores[algo][rel_metric]
+            elif scores[algo][rel_metric] < fit_metrics:
+                fit_algo = algo
+                fit_metrics = scores[algo][rel_metric]
+
+    elif behavior == 'max-best':
+        for algo in scores:
+            if fit_metrics is None:
+                fit_algo = algo
+                fit_metrics = scores[algo][rel_metric]
+            elif scores[algo][rel_metric] > fit_metrics:
+                fit_algo = algo
+                fit_metrics = scores[algo][rel_metric]
+
+    if algo_type == 'clf':
+        from catboost import CatBoostClassifier
+        from sklearn.ensemble import AdaBoostClassifier
+        from sklearn.tree import DecisionTreeClassifier
+        from sklearn.ensemble import RandomForestClassifier
+        from lightgbm import LGBMClassifier
+        from sklearn.tree import ExtraTreeClassifier
+        from sklearn.linear_model import LogisticRegression
+        from sklearn.neighbors import KNeighborsClassifier
+        from sklearn.naive_bayes import GaussianNB
+        from sklearn.linear_model import RidgeClassifier
+        from sklearn.naive_bayes import BernoulliNB
+        from sklearn.svm import SVC
+        from sklearn.linear_model import Perceptron
+        from sklearn.naive_bayes import MultinomialNB
+
+        if fit_algo == 'cat':
+            model = CatBoostClassifier(verbose=False)
+            model.fit(X_train, y_train)
+
+        elif fit_algo == 'ada':
+            model = AdaBoostClassifier()
+            model.fit(X_train, y_train)
+
+        elif fit_algo == 'dtr':
+            model = DecisionTreeClassifier()
+            model.fit(X_train, y_train)
+
+        elif fit_algo == 'raf':
+            model = RandomForestClassifier()
+            model.fit(X_train, y_train)
+
+        elif fit_algo == 'lbm':
+            model = LGBMClassifier(verbosity=-1)
+            model.fit(X_train, y_train)
+
+        elif fit_algo == 'ext':
+            model = ExtraTreeClassifier()
+            model.fit(X_train, y_train)
+
+        elif fit_algo == 'log':
+            model = LogisticRegression()
+            model.fit(X_train, y_train)
+
+        elif fit_algo == 'knn':
+            model = KNeighborsClassifier()
+            model.fit(X_train, y_train)
+
+        elif fit_algo == 'gnb':
+            model = GaussianNB()
+            model.fit(X_train, y_train)
+
+        elif fit_algo == 'rdg':
+            model = RidgeClassifier()
+            model.fit(X_train, y_train)
+
+        elif fit_algo == 'bnb':
+            model = BernoulliNB()
+            model.fit(X_train, y_train)
+
+        elif fit_algo == 'svc':
+            model = SVC()
+            model.fit(X_train, y_train)
+
+        elif fit_algo == 'per':
+            model = Perceptron()
+            model.fit(X_train, y_train)
+
+        elif fit_algo == 'mnb':
+            model = MultinomialNB()
+            model.fit(X_train, y_train)
+
+    elif algo_type == 'reg':
+        from catboost import CatBoostRegressor
+        from sklearn.ensemble import AdaBoostRegressor
+        from sklearn.tree import DecisionTreeRegressor
+        from sklearn.ensemble import RandomForestRegressor
+        from lightgbm import LGBMRegressor
+        from sklearn.tree import ExtraTreeRegressor
+        from sklearn.linear_model import LinearRegression
+        from sklearn.neighbors import KNeighborsRegressor
+        from sklearn.svm import SVR
+
+        if fit_algo == 'cat':
+            model = CatBoostRegressor(verbose=False)
+            model.fit(X_train, y_train)
+
+        elif fit_algo == 'ada':
+            model = AdaBoostRegressor()
+            model.fit(X_train, y_train)
+
+        elif fit_algo == 'dtr':
+            model = DecisionTreeRegressor()
+            model.fit(X_train, y_train)
+
+        elif fit_algo == 'raf':
+            model = RandomForestRegressor()
+            model.fit(X_train, y_train)
+
+        elif fit_algo == 'lbm':
+            model = LGBMRegressor(verbosity=-1)
+            model.fit(X_train, y_train)
+
+        elif fit_algo == 'ext':
+            model = ExtraTreeRegressor()
+            model.fit(X_train, y_train)
+
+        elif fit_algo == 'lin':
+            model = LinearRegression()
+            model.fit(X_train, y_train)
+
+        elif fit_algo == 'knn':
+            model = KNeighborsRegressor()
+            model.fit(X_train, y_train)
+
+        elif fit_algo == 'svr':
+            model = SVR()
+            model.fit(X_train, y_train)
+
+    if verbose is True:
+        print('Best Algorithm is {} with the score of {}'.format(fit_algo, fit_metrics))
+
+    return model
