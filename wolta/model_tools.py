@@ -1253,6 +1253,8 @@ def commune_create(algorithms, X_train, y_train, X_test, y_test, get_dict=False)
             gen_best = str(algo)
             gen_best_score = results[algo]['gen']
 
+    del results[gen_best]
+
     for algo in results:
         for uniq in uniqs:
             if results[algo]['sub'][uniq] > bests[uniq]['score']:
