@@ -1096,3 +1096,231 @@ def get_best_model(scores, rel_metric, algo_type, X_train, y_train, behavior='mi
         print('Best Algorithm is {} with the score of {}'.format(fit_algo, fit_metrics))
 
     return model
+
+
+def subacc(y_test, y_pred, get_general=False):
+    from sklearn.metrics import accuracy_score as accs
+
+    y_test = list(y_test)
+    y_pred = list(y_pred)
+
+    population = {}
+    succeeded = {}
+
+    uniqs = np.unique(y_test)
+
+    for uniq in uniqs:
+        population[uniq] = 0
+        succeeded[uniq] = 0
+
+    for i in range(len(y_test)):
+        population[y_test[i]] += 1
+
+        if y_test[i] == y_pred[i]:
+            succeeded[y_test[i]] += 1
+
+    acc = {}
+
+    for uniq in uniqs:
+        acc[uniq] = succeeded[uniq] / population[uniq]
+
+    if get_general is True:
+        score = accs(y_test, y_pred)
+        return acc, score
+    else:
+        return acc
+
+
+def get_models(algorithms, X_train, y_train):
+    from catboost import CatBoostClassifier
+    from sklearn.ensemble import AdaBoostClassifier
+    from sklearn.tree import DecisionTreeClassifier
+    from sklearn.ensemble import RandomForestClassifier
+    from lightgbm import LGBMClassifier
+    from sklearn.tree import ExtraTreeClassifier
+    from sklearn.linear_model import LogisticRegression
+    from sklearn.neighbors import KNeighborsClassifier
+    from sklearn.naive_bayes import GaussianNB
+    from sklearn.linear_model import RidgeClassifier
+    from sklearn.naive_bayes import BernoulliNB
+    from sklearn.svm import SVC
+    from sklearn.linear_model import Perceptron
+    from sklearn.naive_bayes import MultinomialNB
+
+    models = {}
+
+    if algorithms[0] == 'all':
+        algorithms = ['cat', 'ada', 'dtr', 'raf', 'lbm', 'ext', 'log', 'knn', 'gnb', 'rdg', 'bnb', 'svc', 'per', 'mnb']
+
+    for algo in algorithms:
+        if algo == 'cat':
+            model = CatBoostClassifier(verbose=False)
+            model.fit(X_train, y_train)
+            models[algo] = model
+
+        elif algo == 'ada':
+            model = AdaBoostClassifier()
+            model.fit(X_train, y_train)
+            models[algo] = model
+
+        elif algo == 'dtr':
+            model = DecisionTreeClassifier()
+            model.fit(X_train, y_train)
+            models[algo] = model
+
+        elif algo == 'raf':
+            model = RandomForestClassifier()
+            model.fit(X_train, y_train)
+            models[algo] = model
+
+        elif algo == 'lbm':
+            model = LGBMClassifier(verbosity=-1)
+            model.fit(X_train, y_train)
+            models[algo] = model
+
+        elif algo == 'ext':
+            model = ExtraTreeClassifier()
+            model.fit(X_train, y_train)
+            models[algo] = model
+
+        elif algo == 'log':
+            model = LogisticRegression()
+            model.fit(X_train, y_train)
+            models[algo] = model
+
+        elif algo == 'knn':
+            model = KNeighborsClassifier()
+            model.fit(X_train, y_train)
+            models[algo] = model
+
+        elif algo == 'gnb':
+            model = GaussianNB()
+            model.fit(X_train, y_train)
+            models[algo] = model
+
+        elif algo == 'rdg':
+            model = RidgeClassifier()
+            model.fit(X_train, y_train)
+            models[algo] = model
+
+        elif algo == 'bnb':
+            model = BernoulliNB()
+            model.fit(X_train, y_train)
+            models[algo] = model
+
+        elif algo == 'svc':
+            model = SVC()
+            model.fit(X_train, y_train)
+            models[algo] = model
+
+        elif algo == 'per':
+            model = Perceptron()
+            model.fit(X_train, y_train)
+            models[algo] = model
+
+        elif algo == 'mnb':
+            model = MultinomialNB()
+            model.fit(X_train, y_train)
+            models[algo] = model
+
+    return models
+
+
+def commune_create(algorithms, X_train, y_train, X_test, y_test, get_dict=False):
+    from sklearn.metrics import accuracy_score
+
+    models = get_models(algorithms, X_train, y_train)
+    results = {}
+
+    for model in models:
+        y_pred = models[model].predict(X_test)
+        sub, gen = subacc(y_test, y_pred, get_general=True)
+
+        results[model] = {'gen': gen,
+                          'sub': sub}
+
+    uniqs = np.unique(y_test)
+
+    gen_best = ''
+    gen_best_score = 0
+    bests = {}
+
+    for uniq in uniqs:
+        bests[uniq] = {'score': 0, 'algo': ''}
+
+    for algo in results:
+        if results[algo]['gen'] > gen_best_score:
+            gen_best = str(algo)
+            gen_best_score = results[algo]['gen']
+
+    for algo in results:
+        for uniq in uniqs:
+            if results[algo]['sub'][uniq] > bests[uniq]['score']:
+                bests[uniq]['algo'] = str(algo)
+                bests[uniq]['score'] = results[algo]['sub'][uniq]
+
+    y_pred = []
+    recatch = []
+    y_re = []
+
+    instead = ''
+    instead_score = 0
+
+    for i in range(X_test.shape[0]):
+        res = models[gen_best].predict([X_test[i, :]])[0]
+        check = models[bests[res]['algo']].predict([X_test[i, :]])[0]
+
+        if res == check:
+            y_pred.append(res)
+        else:
+            y_pred.append(None)
+            recatch.append(X_test[i, :])
+            y_re.append(y_test[i])
+
+    for algo in models:
+        y_sub = models[algo].predict(recatch)
+        sco = accuracy_score(y_re, y_sub)
+
+        if sco > instead_score:
+            instead = algo
+            instead_score = sco
+
+    y_sub = models[instead].predict(recatch)
+    loc = 0
+
+    for i in range(len(y_pred)):
+        if y_pred[i] is None:
+            y_pred[i] = y_sub[loc]
+            loc += 1
+
+    if get_dict is True:
+        if instead == '':
+            instead = gen_best
+
+        fin = {
+            'models': models,
+            'general': gen_best,
+            'best': bests,
+            'instead': instead
+        }
+
+        return y_pred, fin
+    else:
+        return y_pred
+
+
+def commune_apply(created, X_test):
+    y_pred = []
+
+    for i in range(X_test.shape[0]):
+        res = created['models'][created['general']].predict([X_test[i, :]])[0]
+        check = created['models'][created['best'][res]['algo']].predict([X_test[i, :]])[0]
+
+        if res == check:
+            y_pred.append(res)
+        else:
+            res = created['models'][created['instead']].predict([X_test[i, :]])[0]
+            y_pred.append(res)
+
+    y_pred = np.array(y_pred)
+    return y_pred
