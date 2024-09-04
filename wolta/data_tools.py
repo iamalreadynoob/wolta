@@ -37,7 +37,7 @@ def unique_amounts(df, strategy=None, print_dict=False):
         for col in columns:
             amount = len(list(df[col].unique()))
 
-            if amount in strategy:
+            if col in strategy:
                 space[col] = amount
 
         if print_dict:
@@ -419,26 +419,6 @@ def make_categorical(y, strategy='normal'):
             return y
         else:
             return y, amin, amax, std, mean, border_one, border_two
-
-
-def make_normal(X, y, strategy='log'):
-    import numpy as np
-    import sys
-
-    sys.stderr.write('WARNING: This method has been deprecated in v0.1.8 and will be removed in v0.2.0')
-
-    if strategy == 'log':
-        X = np.log(X + 1)
-        y = np.log(y + 1)
-
-        return X, y
-
-    elif strategy == 'sqrt':
-        X = np.sqrt(X)
-        y = np.sqrt(y)
-
-        return X, y
-
 
 def is_normal(y):
     amin = np.amin(y)
