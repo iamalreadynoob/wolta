@@ -37,7 +37,7 @@ def quest_selection(model_class, X_train, y_train, X_test, y_test, features, fla
             passed.append(feature)
 
     if len(passed) <= 0:
-        print("There is no future to suitable to exclude")
+        print("There is no feature to exclude")
     else:
         succeeded_combinations = []
         scores = []

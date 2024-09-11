@@ -1,7 +1,7 @@
 import numpy as np
 
 
-def get_score(y_test, y_pred, metrics=None, average='weighted', algo_type='clf'):
+def get_score(y_test, y_pred, metrics=None, average='weighted', algo_type='clf', verbose=True):
     if metrics is None:
         if algo_type == 'clf':
             metrics = ['acc']
@@ -245,16 +245,10 @@ def get_score(y_test, y_pred, metrics=None, average='weighted', algo_type='clf')
                 else:
                     output += '\nD2 Tweedie Score: {}'.format(str(score))
 
-    print(output)
+    if verbose is True:
+        print(output)
+
     return scores
-
-
-def get_supported_metrics():
-    return ['acc', 'f1', 'hamming', 'jaccard', 'log', 'mcc', 'precision', 'recall', 'zol']
-
-
-def get_avg_options():
-    return ['micro', 'macro', 'binary', 'weighted', 'samples']
 
 
 def do_voting(y_pred_list, combinations, strategy='avg'):
@@ -1226,20 +1220,20 @@ def get_models(algorithms, X_train, y_train):
     return models
 
 
-def commune_create(algorithms, X_train, y_train, X_test, y_test, get_dict=False):
+def commune_create(algorithms, X_train, y_train, X_val, y_val, get_dict=False):
     from sklearn.metrics import accuracy_score
 
     models = get_models(algorithms, X_train, y_train)
     results = {}
 
     for model in models:
-        y_pred = models[model].predict(X_test)
-        sub, gen = subacc(y_test, y_pred, get_general=True)
+        y_pred = models[model].predict(X_val)
+        sub, gen = subacc(y_val, y_pred, get_general=True)
 
         results[model] = {'gen': gen,
                           'sub': sub}
 
-    uniqs = np.unique(y_test)
+    uniqs = np.unique(y_val)
 
     gen_best = ''
     gen_best_score = 0
@@ -1268,16 +1262,16 @@ def commune_create(algorithms, X_train, y_train, X_test, y_test, get_dict=False)
     instead = ''
     instead_score = 0
 
-    for i in range(X_test.shape[0]):
-        res = models[gen_best].predict([X_test[i, :]])[0]
-        check = models[bests[res]['algo']].predict([X_test[i, :]])[0]
+    for i in range(X_val.shape[0]):
+        res = models[gen_best].predict([X_val[i, :]])[0]
+        check = models[bests[res]['algo']].predict([X_val[i, :]])[0]
 
         if res == check:
             y_pred.append(res)
         else:
             y_pred.append(None)
-            recatch.append(X_test[i, :])
-            y_re.append(y_test[i])
+            recatch.append(X_val[i, :])
+            y_re.append(y_val[i])
 
     for algo in models:
         y_sub = models[algo].predict(recatch)
@@ -1311,17 +1305,17 @@ def commune_create(algorithms, X_train, y_train, X_test, y_test, get_dict=False)
         return y_pred
 
 
-def commune_apply(created, X_test):
+def commune_apply(declaration, X_test):
     y_pred = []
 
     for i in range(X_test.shape[0]):
-        res = created['models'][created['general']].predict([X_test[i, :]])[0]
-        check = created['models'][created['best'][res]['algo']].predict([X_test[i, :]])[0]
+        res = declaration['models'][declaration['general']].predict([X_test[i, :]])[0]
+        check = declaration['models'][declaration['best'][res]['algo']].predict([X_test[i, :]])[0]
 
         if res == check:
             y_pred.append(res)
         else:
-            res = created['models'][created['instead']].predict([X_test[i, :]])[0]
+            res = declaration['models'][declaration['instead']].predict([X_test[i, :]])[0]
             y_pred.append(res)
 
     y_pred = np.array(y_pred)

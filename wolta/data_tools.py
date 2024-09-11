@@ -699,12 +699,12 @@ def find_deflection(y_test, y_pred, arr=True, avg=False, gap=None, gap_type='num
 
 
 def extract_float(column, symbols):
-    for i in range(column.shape[0]):
-        if column[i] != np.nan or column[i] is None:
+    for i in range(len(column)):
+        if column[i] != np.nan and column[i] is not None:
             for sym in symbols:
-                column.values[i] = str(column.values[i]).replace(sym, '')
+                column[i] = str(column[i]).replace(sym, '')
 
-            column.values[i] = float(column.values[i])
+            column[i] = float(column[i])
 
     return column
 
@@ -787,19 +787,19 @@ def col_counts(df, exclude=None, only=None):
 
 
 def check_similarity(col1, col2):
-  similar = True
-  connections = {}
-  col1 = list(col1)
-  col2 = list(col2)
+    similar = True
+    connections = {}
+    col1 = list(col1)
+    col2 = list(col2)
 
-  for i in range(len(col1)):
-    if col1[i] in connections and connections[col1[i]] != col2[i]:
-      similar = False
-      break
-    else:
-      connections[col1[i]] = col2[i]
+    for i in range(len(col1)):
+        if col1[i] in connections and connections[col1[i]] != col2[i]:
+            similar = False
+            break
+        else:
+            connections[col1[i]] = col2[i]
 
-  return similar
+    return similar
 
 
 def find_broke(column, dtype=float, get_indexes=True, get_words=False, verbose=True, verbose_limit=10):
