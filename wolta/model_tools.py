@@ -1125,99 +1125,164 @@ def subacc(y_test, y_pred, get_general=False):
         return acc
 
 
-def get_models(algorithms, X_train, y_train):
-    from catboost import CatBoostClassifier
-    from sklearn.ensemble import AdaBoostClassifier
-    from sklearn.tree import DecisionTreeClassifier
-    from sklearn.ensemble import RandomForestClassifier
-    from lightgbm import LGBMClassifier
-    from sklearn.tree import ExtraTreeClassifier
-    from sklearn.linear_model import LogisticRegression
-    from sklearn.neighbors import KNeighborsClassifier
-    from sklearn.naive_bayes import GaussianNB
-    from sklearn.linear_model import RidgeClassifier
-    from sklearn.naive_bayes import BernoulliNB
-    from sklearn.svm import SVC
-    from sklearn.linear_model import Perceptron
-    from sklearn.naive_bayes import MultinomialNB
+def get_models(algorithms, X_train, y_train, algo_type='clf'):
+    if algo_type == 'clf':
+        from catboost import CatBoostClassifier
+        from sklearn.ensemble import AdaBoostClassifier
+        from sklearn.tree import DecisionTreeClassifier
+        from sklearn.ensemble import RandomForestClassifier
+        from lightgbm import LGBMClassifier
+        from sklearn.tree import ExtraTreeClassifier
+        from sklearn.linear_model import LogisticRegression
+        from sklearn.neighbors import KNeighborsClassifier
+        from sklearn.naive_bayes import GaussianNB
+        from sklearn.linear_model import RidgeClassifier
+        from sklearn.naive_bayes import BernoulliNB
+        from sklearn.svm import SVC
+        from sklearn.linear_model import Perceptron
+        from sklearn.naive_bayes import MultinomialNB
 
-    models = {}
+        models = {}
 
-    if algorithms[0] == 'all':
-        algorithms = ['cat', 'ada', 'dtr', 'raf', 'lbm', 'ext', 'log', 'knn', 'gnb', 'rdg', 'bnb', 'svc', 'per', 'mnb']
+        if algorithms[0] == 'all':
+            algorithms = ['cat', 'ada', 'dtr', 'raf', 'lbm', 'ext', 'log', 'knn', 'gnb', 'rdg', 'bnb', 'svc', 'per', 'mnb']
 
-    for algo in algorithms:
-        if algo == 'cat':
-            model = CatBoostClassifier(verbose=False)
-            model.fit(X_train, y_train)
-            models[algo] = model
+        for algo in algorithms:
+            if algo == 'cat':
+                model = CatBoostClassifier(verbose=False)
+                model.fit(X_train, y_train)
+                models[algo] = model
 
-        elif algo == 'ada':
-            model = AdaBoostClassifier()
-            model.fit(X_train, y_train)
-            models[algo] = model
+            elif algo == 'ada':
+                model = AdaBoostClassifier()
+                model.fit(X_train, y_train)
+                models[algo] = model
 
-        elif algo == 'dtr':
-            model = DecisionTreeClassifier()
-            model.fit(X_train, y_train)
-            models[algo] = model
+            elif algo == 'dtr':
+                model = DecisionTreeClassifier()
+                model.fit(X_train, y_train)
+                models[algo] = model
 
-        elif algo == 'raf':
-            model = RandomForestClassifier()
-            model.fit(X_train, y_train)
-            models[algo] = model
+            elif algo == 'raf':
+                model = RandomForestClassifier()
+                model.fit(X_train, y_train)
+                models[algo] = model
 
-        elif algo == 'lbm':
-            model = LGBMClassifier(verbosity=-1)
-            model.fit(X_train, y_train)
-            models[algo] = model
+            elif algo == 'lbm':
+                model = LGBMClassifier(verbosity=-1)
+                model.fit(X_train, y_train)
+                models[algo] = model
 
-        elif algo == 'ext':
-            model = ExtraTreeClassifier()
-            model.fit(X_train, y_train)
-            models[algo] = model
+            elif algo == 'ext':
+                model = ExtraTreeClassifier()
+                model.fit(X_train, y_train)
+                models[algo] = model
 
-        elif algo == 'log':
-            model = LogisticRegression()
-            model.fit(X_train, y_train)
-            models[algo] = model
+            elif algo == 'log':
+                model = LogisticRegression()
+                model.fit(X_train, y_train)
+                models[algo] = model
 
-        elif algo == 'knn':
-            model = KNeighborsClassifier()
-            model.fit(X_train, y_train)
-            models[algo] = model
+            elif algo == 'knn':
+                model = KNeighborsClassifier()
+                model.fit(X_train, y_train)
+                models[algo] = model
 
-        elif algo == 'gnb':
-            model = GaussianNB()
-            model.fit(X_train, y_train)
-            models[algo] = model
+            elif algo == 'gnb':
+                model = GaussianNB()
+                model.fit(X_train, y_train)
+                models[algo] = model
 
-        elif algo == 'rdg':
-            model = RidgeClassifier()
-            model.fit(X_train, y_train)
-            models[algo] = model
+            elif algo == 'rdg':
+                model = RidgeClassifier()
+                model.fit(X_train, y_train)
+                models[algo] = model
 
-        elif algo == 'bnb':
-            model = BernoulliNB()
-            model.fit(X_train, y_train)
-            models[algo] = model
+            elif algo == 'bnb':
+                model = BernoulliNB()
+                model.fit(X_train, y_train)
+                models[algo] = model
 
-        elif algo == 'svc':
-            model = SVC()
-            model.fit(X_train, y_train)
-            models[algo] = model
+            elif algo == 'svc':
+                model = SVC()
+                model.fit(X_train, y_train)
+                models[algo] = model
 
-        elif algo == 'per':
-            model = Perceptron()
-            model.fit(X_train, y_train)
-            models[algo] = model
+            elif algo == 'per':
+                model = Perceptron()
+                model.fit(X_train, y_train)
+                models[algo] = model
 
-        elif algo == 'mnb':
-            model = MultinomialNB()
-            model.fit(X_train, y_train)
-            models[algo] = model
+            elif algo == 'mnb':
+                model = MultinomialNB()
+                model.fit(X_train, y_train)
+                models[algo] = model
 
-    return models
+        return models
+
+    elif algo_type == 'reg':
+        from catboost import CatBoostRegressor
+        from sklearn.ensemble import AdaBoostRegressor
+        from sklearn.tree import DecisionTreeRegressor
+        from sklearn.ensemble import RandomForestRegressor
+        from lightgbm import LGBMRegressor
+        from sklearn.tree import ExtraTreeRegressor
+        from sklearn.linear_model import LinearRegression
+        from sklearn.neighbors import KNeighborsRegressor
+        from sklearn.svm import SVR
+
+        models = {}
+
+        if algorithms[0] == 'all':
+            algorithms = ['cat', 'ada', 'dtr', 'raf', 'lbm', 'ext', 'lin', 'knn', 'svr']
+
+        for algo in algorithms:
+            if algo == 'cat':
+                model = CatBoostRegressor(verbose=False)
+                model.fit(X_train, y_train)
+                models[algo] = model
+
+            elif algo == 'ada':
+                model = AdaBoostRegressor()
+                model.fit(X_train, y_train)
+                models[algo] = model
+
+            elif algo == 'dtr':
+                model = DecisionTreeRegressor()
+                model.fit(X_train, y_train)
+                models[algo] = model
+
+            elif algo == 'raf':
+                model = RandomForestRegressor()
+                model.fit(X_train, y_train)
+                models[algo] = model
+
+            elif algo == 'lbm':
+                model = LGBMRegressor(verbosity=-1)
+                model.fit(X_train, y_train)
+                models[algo] = model
+
+            elif algo == 'ext':
+                model = ExtraTreeRegressor()
+                model.fit(X_train, y_train)
+                models[algo] = model
+
+            elif algo == 'lin':
+                model = LinearRegression()
+                model.fit(X_train, y_train)
+                models[algo] = model
+
+            elif algo == 'knn':
+                model = KNeighborsRegressor()
+                model.fit(X_train, y_train)
+                models[algo] = model
+
+            elif algo == 'svr':
+                model = SVR()
+                model.fit(X_train, y_train)
+                models[algo] = model
+
+        return models
 
 
 def commune_create(algorithms, X_train, y_train, X_val, y_val, get_dict=False):
@@ -1320,3 +1385,151 @@ def commune_apply(declaration, X_test):
 
     y_pred = np.array(y_pred)
     return y_pred
+
+
+def find_deflection(y_test, y_pred, arr=True, avg=False, gap=None, gap_type='num', dif_type='f-i', avg_w_abs=True, success_indexes=False):
+    if arr == True or avg == True or gap is not None:
+        diffs = []
+
+        first = None
+        second = None
+
+        if dif_type == 'f-i':
+            first = y_pred
+            second = y_test
+        elif dif_type == 'i-f':
+            first = y_test
+            second = y_pred
+        else:
+            first = y_pred
+            second = y_test
+
+        for i in range(y_test.shape[0]):
+            diffs.append(first[i] - second[i])
+
+        diffs = np.array(diffs)
+
+        if dif_type == 'abs':
+            diffs = np.abs(diffs)
+
+        if arr == True and avg == False and gap is None:
+            return diffs
+
+        if avg == True:
+            avg_score = 0
+
+            tot_arr = diffs
+            if dif_type != 'abs' and avg_w_abs == True:
+                tot_arr = np.abs(diffs)
+
+            for i in range(diffs.shape[0]):
+                avg_score += tot_arr[i]
+
+            avg_score /= diffs.shape[0]
+
+            if arr == True and avg == True and gap is None:
+                return diffs, avg_score
+
+            if arr == False and avg == True and gap is None:
+                return avg_score
+
+            indexes = []
+
+            if gap_type == 'exact':
+                for i in range(y_test.shape[0]):
+                    if y_test[i] == y_pred[i]:
+                        indexes.append(i)
+            else:
+                for i in range(y_test.shape[0]):
+                    lowest = None
+                    highest = None
+
+                    if gap_type == 'num':
+                        lowest = y_test[i] - gap
+                        highest = y_test[i] + gap
+                    elif gap_type == 'num+':
+                        lowest = y_test[i]
+                        highest = y_test[i] + gap
+                    elif gap_type == 'num-':
+                        lowest = y_test[i] - gap
+                        highest = y_test[i]
+                    elif gap_type == 'per':
+                        lowest = y_test[i] * (100 - gap) / 100
+                        highest = y_test[i] * (100 + gap) / 100
+                    elif gap_type == 'per+':
+                        lowest = y_test[i]
+                        highest = y_test[i] * (100 + gap) / 100
+                    elif gap_type == 'per-':
+                        lowest = y_test[i] * (100 - gap) / 100
+                        highest = y_test[i]
+
+                    if highest < lowest:
+                        temp = lowest
+                        lowest = highest
+                        highest = temp
+
+                    if lowest <= y_pred[i] <= highest:
+                        indexes.append(i)
+
+            if arr == True and avg == True and gap is not None:
+                if success_indexes == True:
+                    return diffs, avg_score, len(indexes), indexes
+                else:
+                    return diffs, avg_score, len(indexes)
+
+            if arr == False and avg == True and gap is not None:
+                if success_indexes == True:
+                    return avg_score, len(indexes), indexes
+                else:
+                    return avg_score, len(indexes)
+
+        if gap is not None:
+            indexes = []
+
+            if gap_type == 'exact':
+                for i in range(y_test.shape[0]):
+                    if y_test[i] == y_pred[i]:
+                        indexes.append(i)
+            else:
+                for i in range(y_test.shape[0]):
+                    lowest = None
+                    highest = None
+
+                    if gap_type == 'num':
+                        lowest = y_test[i] - gap
+                        highest = y_test[i] + gap
+                    elif gap_type == 'num+':
+                        lowest = y_test[i]
+                        highest = y_test[i] + gap
+                    elif gap_type == 'num-':
+                        lowest = y_test[i] - gap
+                        highest = y_test[i]
+                    elif gap_type == 'per':
+                        lowest = y_test[i] * (100 - gap) / 100
+                        highest = y_test[i] * (100 + gap) / 100
+                    elif gap_type == 'per+':
+                        lowest = y_test[i]
+                        highest = y_test[i] * (100 + gap) / 100
+                    elif gap_type == 'per-':
+                        lowest = y_test[i] * (100 - gap) / 100
+                        highest = y_test[i]
+
+                    if highest < lowest:
+                        temp = lowest
+                        lowest = highest
+                        highest = temp
+
+                    if lowest <= y_pred[i] <= highest:
+                        indexes.append(i)
+
+            if arr == True and avg == False:
+                if success_indexes == True:
+                    return diffs, len(indexes), indexes
+                else:
+                    return diffs, len(indexes)
+
+            if arr == False and avg == False:
+                if success_indexes == True:
+                    return len(indexes), indexes
+                else:
+                    return len(indexes)

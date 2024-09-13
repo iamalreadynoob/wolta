@@ -87,3 +87,144 @@ def quest_selection(model_class, X_train, y_train, X_test, y_test, features, fla
                 print('if you delete {}, then acc will {} with {} change'.format(str(succeeded_combinations[i]), str(scores[i]), str(scores[i] - normal_acc)))
         else:
             print("There is no future to suitable to exclude")
+
+def list_deletings(df, extra=None, del_null=True, null_tolerance=20, del_single=True, del_almost_single=False, almost_tolerance=50, suggest_extra=True, return_extra=False, unique_tolerance=10):
+    will = None
+
+    if extra is not None:
+        for ftr in extra:
+            del df[ftr]
+
+    if del_null is True:
+        tol = df.shape[0] * null_tolerance // 100
+        print('The maximum tolerated null value amount is {}'.format(str(tol)))
+
+        will_del = []
+        for col in df.columns:
+            amnt = df[col].isna().sum()
+            if amnt > tol:
+                will_del.append(str(col))
+                print('{} will be deleted because it has {} null values and this is {} values more than tolerance'.format(str(col), str(amnt), str(amnt - tol)))
+
+        for col in will_del:
+            del df[col]
+
+    if del_single is True:
+        will_del = []
+
+        for col in df.columns:
+            if len(list(df[col].unique())) == 1:
+                will_del.append(str(col))
+                print('{} will be deleted because it has single value'.format(str(col)))
+
+        for col in will_del:
+            del df[col]
+
+    if del_almost_single is True:
+        will_del = []
+        tol = df.shape[0] * almost_tolerance // 100
+        print('The maximum tolerated same value amount is {}'.format(str(tol)))
+
+        for col in df.columns:
+            if df[col].value_counts().max() > tol:
+                will_del.append(col)
+                print('{} will be deleted because it has single (almost) value'.format(str(col)))
+
+        for col in will_del:
+            del df[col]
+
+    if suggest_extra is True:
+        tol = df.shape[0] * unique_tolerance // 100
+        print('The maximum tolerated unique value amount is {} in string data'.format(str(tol)))
+        will = []
+
+        for col in df.columns:
+            if str(df[col].dtype).__contains__('str') or str(df[col].dtype).__contains__('obj'):
+                uniq = len(list(df[col].unique()))
+                if uniq > tol:
+                    will.append(col)
+                    print('{} might be deleted because it has {} unique values and this is {} values more than tolerance'.format(str(col), str(uniq), str(uniq - tol)))
+
+    if return_extra is True:
+        return df, will
+    else:
+        return df
+
+def multi_split(df, test_size, output, threshold_set):
+    from sklearn.feature_selection import VarianceThreshold as vart
+    import pandas as pd
+
+    test_size = test_size * 100
+
+    temp = df.sample(frac=1)
+    uniqs = list(df[output].unique())
+
+    X_trains = []
+    X_tests = []
+
+    y_train = None
+    y_test = None
+
+    train = None
+    test = None
+
+    for uniq in uniqs:
+        sub = temp[temp[output] == uniq]
+        testlim = int(sub.shape[0] * test_size / 100)
+
+        if test is None:
+            test = sub.iloc[:testlim, :]
+            train = sub.iloc[testlim:, :]
+        else:
+            test = pd.concat([test, sub.iloc[:testlim, :]])
+            train = pd.concat([train, sub.iloc[testlim:, :]])
+
+    y_train = train[output].values
+    del train[output]
+    X_trains.append(train.values)
+    del train
+
+    y_test = test[output].values
+    del test[output]
+    X_tests.append(test.values)
+    del test
+
+    for p in threshold_set:
+        sub = temp.copy()
+
+        suby = sub[output].values
+        del sub[output]
+        subx = sub.values
+        del sub
+
+        sel = vart(threshold=(p * (1 - p)))
+        subx = sel.fit_transform(subx)
+
+        sub = pd.DataFrame(subx)
+        sub[output] = suby
+
+        train = None
+        test = None
+
+        for uniq in uniqs:
+            subt = sub[sub[output] == uniq]
+            testlim = int(subt.shape[0] * test_size / 100)
+
+            if test is None:
+                test = subt.iloc[:testlim, :]
+                train = subt.iloc[testlim:, :]
+            else:
+                test = pd.concat([test, subt.iloc[:testlim, :]])
+                train = pd.concat([train, subt.iloc[testlim:, :]])
+
+        y_train = train[output].values
+        del train[output]
+        X_trains.append(train.values)
+        del train
+
+        y_test = test[output].values
+        del test[output]
+        X_tests.append(test.values)
+        del test
+
+    return X_trains, X_tests, y_train, y_test

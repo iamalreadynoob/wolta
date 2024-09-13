@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 
 
 def col_types(df, print_columns=False):
@@ -550,154 +551,6 @@ def stat_sum(df, requested, only=None, exclude=None, get_dict=False, verbose=Tru
         return gen_results
 
 
-def find_deflection(y_test, y_pred, arr=True, avg=False, gap=None, gap_type='num', dif_type='f-i', avg_w_abs=True, success_indexes=False):
-    if arr == True or avg == True or gap is not None:
-        diffs = []
-
-        first = None
-        second = None
-
-        if dif_type == 'f-i':
-            first = y_pred
-            second = y_test
-        elif dif_type == 'i-f':
-            first = y_test
-            second = y_pred
-        else:
-            first = y_pred
-            second = y_test
-
-        for i in range(y_test.shape[0]):
-            diffs.append(first[i] - second[i])
-
-        diffs = np.array(diffs)
-
-        if dif_type == 'abs':
-            diffs = np.abs(diffs)
-
-        if arr == True and avg == False and gap is None:
-            return diffs
-
-        if avg == True:
-            avg_score = 0
-
-            tot_arr = diffs
-            if dif_type != 'abs' and avg_w_abs == True:
-                tot_arr = np.abs(diffs)
-
-            for i in range(diffs.shape[0]):
-                avg_score += tot_arr[i]
-
-            avg_score /= diffs.shape[0]
-
-            if arr == True and avg == True and gap is None:
-                return diffs, avg_score
-
-            if arr == False and avg == True and gap is None:
-                return avg_score
-
-            indexes = []
-
-            if gap_type == 'exact':
-                for i in range(y_test.shape[0]):
-                    if y_test[i] == y_pred[i]:
-                        indexes.append(i)
-            else:
-                for i in range(y_test.shape[0]):
-                    lowest = None
-                    highest = None
-
-                    if gap_type == 'num':
-                        lowest = y_test[i] - gap
-                        highest = y_test[i] + gap
-                    elif gap_type == 'num+':
-                        lowest = y_test[i]
-                        highest = y_test[i] + gap
-                    elif gap_type == 'num-':
-                        lowest = y_test[i] - gap
-                        highest = y_test[i]
-                    elif gap_type == 'per':
-                        lowest = y_test[i] * (100 - gap) / 100
-                        highest = y_test[i] * (100 + gap) / 100
-                    elif gap_type == 'per+':
-                        lowest = y_test[i]
-                        highest = y_test[i] * (100 + gap) / 100
-                    elif gap_type == 'per-':
-                        lowest = y_test[i] * (100 - gap) / 100
-                        highest = y_test[i]
-
-                    if highest < lowest:
-                        temp = lowest
-                        lowest = highest
-                        highest = temp
-
-                    if lowest <= y_pred[i] <= highest:
-                        indexes.append(i)
-
-            if arr == True and avg == True and gap is not None:
-                if success_indexes == True:
-                    return diffs, avg_score, len(indexes), indexes
-                else:
-                    return diffs, avg_score, len(indexes)
-
-            if arr == False and avg == True and gap is not None:
-                if success_indexes == True:
-                    return avg_score, len(indexes), indexes
-                else:
-                    return avg_score, len(indexes)
-
-        if gap is not None:
-            indexes = []
-
-            if gap_type == 'exact':
-                for i in range(y_test.shape[0]):
-                    if y_test[i] == y_pred[i]:
-                        indexes.append(i)
-            else:
-                for i in range(y_test.shape[0]):
-                    lowest = None
-                    highest = None
-
-                    if gap_type == 'num':
-                        lowest = y_test[i] - gap
-                        highest = y_test[i] + gap
-                    elif gap_type == 'num+':
-                        lowest = y_test[i]
-                        highest = y_test[i] + gap
-                    elif gap_type == 'num-':
-                        lowest = y_test[i] - gap
-                        highest = y_test[i]
-                    elif gap_type == 'per':
-                        lowest = y_test[i] * (100 - gap) / 100
-                        highest = y_test[i] * (100 + gap) / 100
-                    elif gap_type == 'per+':
-                        lowest = y_test[i]
-                        highest = y_test[i] * (100 + gap) / 100
-                    elif gap_type == 'per-':
-                        lowest = y_test[i] * (100 - gap) / 100
-                        highest = y_test[i]
-
-                    if highest < lowest:
-                        temp = lowest
-                        lowest = highest
-                        highest = temp
-
-                    if lowest <= y_pred[i] <= highest:
-                        indexes.append(i)
-
-            if arr == True and avg == False:
-                if success_indexes == True:
-                    return diffs, len(indexes), indexes
-                else:
-                    return diffs, len(indexes)
-
-            if arr == False and avg == False:
-                if success_indexes == True:
-                    return len(indexes), indexes
-                else:
-                    return len(indexes)
-
-
 def extract_float(column, symbols):
     for i in range(len(column)):
         if column[i] != np.nan and column[i] is not None:
@@ -707,69 +560,6 @@ def extract_float(column, symbols):
             column[i] = float(column[i])
 
     return column
-
-
-def list_deletings(df, extra=None, del_null=True, null_tolerance=20, del_single=True, del_almost_single=False, almost_tolerance=50, suggest_extra=True, return_extra=False, unique_tolerance=10):
-    will = None
-
-    if extra is not None:
-        for ftr in extra:
-            del df[ftr]
-
-    if del_null is True:
-        tol = df.shape[0] * null_tolerance // 100
-        print('The maximum tolerated null value amount is {}'.format(str(tol)))
-
-        will_del = []
-        for col in df.columns:
-            amnt = df[col].isna().sum()
-            if amnt > tol:
-                will_del.append(str(col))
-                print('{} will be deleted because it has {} null values and this is {} values more than tolerance'.format(str(col), str(amnt), str(amnt - tol)))
-
-        for col in will_del:
-            del df[col]
-
-    if del_single is True:
-        will_del = []
-
-        for col in df.columns:
-            if len(list(df[col].unique())) == 1:
-                will_del.append(str(col))
-                print('{} will be deleted because it has single value'.format(str(col)))
-
-        for col in will_del:
-            del df[col]
-
-    if del_almost_single is True:
-        will_del = []
-        tol = df.shape[0] * almost_tolerance // 100
-        print('The maximum tolerated same value amount is {}'.format(str(tol)))
-
-        for col in df.columns:
-            if df[col].value_counts().max() > tol:
-                will_del.append(col)
-                print('{} will be deleted because it has single (almost) value'.format(str(col)))
-
-        for col in will_del:
-            del df[col]
-
-    if suggest_extra is True:
-        tol = df.shape[0] * unique_tolerance // 100
-        print('The maximum tolerated unique value amount is {} in string data'.format(str(tol)))
-        will = []
-
-        for col in df.columns:
-            if str(df[col].dtype).__contains__('str') or str(df[col].dtype).__contains__('obj'):
-                uniq = len(list(df[col].unique()))
-                if uniq > tol:
-                    will.append(col)
-                    print('{} might be deleted because it has {} unique values and this is {} values more than tolerance'.format(str(col), str(uniq), str(uniq - tol)))
-
-    if return_extra is True:
-        return df, will
-    else:
-        return df
 
 
 def col_counts(df, exclude=None, only=None):
@@ -830,86 +620,6 @@ def find_broke(column, dtype=float, get_indexes=True, get_words=False, verbose=T
         return words
 
 
-def multi_split(df, test_size, output, threshold_set):
-    from sklearn.feature_selection import VarianceThreshold as vart
-    import pandas as pd
-
-    test_size = test_size * 100
-
-    temp = df.sample(frac=1)
-    uniqs = list(df[output].unique())
-
-    X_trains = []
-    X_tests = []
-
-    y_train = None
-    y_test = None
-
-    train = None
-    test = None
-
-    for uniq in uniqs:
-        sub = temp[temp[output] == uniq]
-        testlim = int(sub.shape[0] * test_size / 100)
-
-        if test is None:
-            test = sub.iloc[:testlim, :]
-            train = sub.iloc[testlim:, :]
-        else:
-            test = pd.concat([test, sub.iloc[:testlim, :]])
-            train = pd.concat([train, sub.iloc[testlim:, :]])
-
-    y_train = train[output].values
-    del train[output]
-    X_trains.append(train.values)
-    del train
-
-    y_test = test[output].values
-    del test[output]
-    X_tests.append(test.values)
-    del test
-
-    for p in threshold_set:
-        sub = temp.copy()
-
-        suby = sub[output].values
-        del sub[output]
-        subx = sub.values
-        del sub
-
-        sel = vart(threshold=(p * (1 - p)))
-        subx = sel.fit_transform(subx)
-
-        sub = pd.DataFrame(subx)
-        sub[output] = suby
-
-        train = None
-        test = None
-
-        for uniq in uniqs:
-            subt = sub[sub[output] == uniq]
-            testlim = int(subt.shape[0] * test_size / 100)
-
-            if test is None:
-                test = subt.iloc[:testlim, :]
-                train = subt.iloc[testlim:, :]
-            else:
-                test = pd.concat([test, subt.iloc[:testlim, :]])
-                train = pd.concat([train, subt.iloc[testlim:, :]])
-
-        y_train = train[output].values
-        del train[output]
-        X_trains.append(train.values)
-        del train
-
-        y_test = test[output].values
-        del test[output]
-        X_tests.append(test.values)
-        del test
-
-    return X_trains, X_tests, y_train, y_test
-
-
 def expand_df(df, output, sampling_strategy):
     from imblearn.over_sampling import SMOTE as smote
     import pandas as pd
@@ -930,3 +640,33 @@ def expand_df(df, output, sampling_strategy):
     temp[output] = y
 
     return temp
+
+
+def split_as_df(X, y, features, output, test_size, random_state=42, shuffle=True, stratify=None):
+    from sklearn.model_selection import train_test_split
+
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size, random_state=random_state, shuffle=shuffle, stratify=stratify)
+
+    dftrain = pd.DataFrame(X_train, columns=features)
+    dftrain[output] = y_train
+
+    dftest = pd.DataFrame(X_test, columns=features)
+    dftest[output] = y_test
+
+    return dftrain, dftest
+
+
+def train_test_val_split(X, y, test_size, val_size, random_state=42, shuffle=True, stratify=None, stratify_for_val=True):
+    from sklearn.model_selection import train_test_split
+
+    X_temp, X_test, y_temp, y_test = train_test_split(X, y, test_size=test_size, random_state=random_state, shuffle=shuffle, stratify=stratify)
+
+    req_sample = int(X.shape[0] * val_size)
+    new_ratio = req_sample / X_temp.shape[0]
+
+    if stratify_for_val is True:
+        X_train, X_val, y_train, y_val = train_test_split(X_temp, y_temp, test_size=new_ratio, random_state=random_state, shuffle=shuffle, stratify=y_temp)
+        return X_train, X_test, X_val, y_train, y_test, y_val
+    else:
+        X_train, X_val, y_train, y_val = train_test_split(X_temp, y_temp, test_size=new_ratio, random_state=random_state, shuffle=shuffle)
+        return X_train, X_test, X_val, y_train, y_test, y_val
