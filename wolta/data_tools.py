@@ -670,3 +670,153 @@ def train_test_val_split(X, y, test_size, val_size, random_state=42, shuffle=Tru
     else:
         X_train, X_val, y_train, y_val = train_test_split(X_temp, y_temp, test_size=new_ratio, random_state=random_state, shuffle=shuffle)
         return X_train, X_test, X_val, y_train, y_test, y_val
+
+
+def synthetic_expand(df, feature_info, shape_zero):
+    from collections import Counter
+    from random import randint, uniform
+    import numpy as np
+    import pandas as pd
+
+    arrs = {}
+
+    for col in df.columns:
+        arrs[col] = list(df[col].values)
+
+    new_create = shape_zero - df.shape[0]
+
+    for ftr in arrs:
+        if feature_info[ftr] == 'discrete':
+            counts = Counter(arrs[ftr])
+            boundaries = {}
+
+            ceil = 0
+
+            for item in counts:
+                per = counts[item] / df.shape[0] * 100
+                per = round(per)
+
+                if per == 0:
+                    per += 1
+
+                boundaries[item] = {
+                    'min': ceil,
+                    'max': ceil + per
+                }
+
+                ceil += per
+
+            for i in range(new_create):
+                loc = randint(0, ceil - 1)
+
+                for item in boundaries:
+                    if boundaries[item]['min'] <= loc < boundaries[item]['max']:
+                        arrs[ftr].append(item)
+
+        elif feature_info[ftr] == 'continuous':
+            local_min = min(arrs[ftr])
+            local_max = max(arrs[ftr])
+            local_mean = np.mean(arrs[ftr])
+
+            low_gap = abs(local_mean - local_min)
+            high_gap = abs(local_max - local_mean)
+
+            is_int = True
+
+            for i in range(df.shape[0]):
+                if arrs[ftr][i] != round(arrs[ftr][i]):
+                    is_int = False
+                    break
+
+            for i in range(new_create):
+                plus = randint(0, 1)
+
+                if plus == 0:
+                    if is_int is True:
+                        decrease = randint(0, int(round(low_gap)))
+                        result = int(round(local_mean)) - decrease
+                        arrs[ftr].append(result)
+                    else:
+                        decrease = uniform(0, low_gap)
+                        result = local_mean - decrease
+                        result = round(result, 2)
+                        arrs[ftr].append(result)
+                else:
+                    if is_int is True:
+                        increase = randint(0, int(high_gap))
+                        result = int(round(local_mean)) + increase
+                        arrs[ftr].append(result)
+                    else:
+                        increase = uniform(0, high_gap)
+                        result = local_mean + increase
+                        result = round(result, 2)
+                        arrs[ftr].append(result)
+
+    cols = list(arrs.keys())
+    temp_df = pd.DataFrame(arrs[cols[0]], columns=[cols[0]])
+    for i in range(1, len(cols)):
+        temp_df[cols[i]] = np.array(arrs[cols[i]])
+
+    return temp_df
+
+
+def multi_split(df, labels, test_size, times=50):
+    from collections import Counter
+
+    temp = df.copy()
+    best_df = temp.copy()
+    best_score = 100000000
+
+    ideal_ratios = {}
+
+    train_size = 1 - test_size
+    sample_amount = int(temp.shape[0] * train_size)
+    test_amount = temp.shape[0] - sample_amount
+
+    for label in labels:
+        classes = len(list(Counter(temp[label].values).keys()))
+        ideal_ratios[label] = (test_amount / classes) / test_amount
+
+    for i in range(times):
+        temp = temp.sample(frac=1)
+        score = 0
+
+        for label in labels:
+            sub_test = temp[label].values[sample_amount:]
+
+            counts = list(Counter(sub_test).values())
+            max_count = max(counts)
+            min_count = min(counts)
+
+            max_ratio = max_count / test_amount
+            min_ratio = min_count / test_amount
+
+            upper_dif = abs(max_ratio - ideal_ratios[label])
+            lower_dif = abs(min_ratio - ideal_ratios[label])
+            dif_mean = (upper_dif + lower_dif) / 2
+
+            score += dif_mean
+
+        score /= len(labels)
+
+        if score < best_score:
+            best_df = temp.copy()
+            best_score = score
+
+    traindf = best_df.iloc[:sample_amount, :]
+    testdf = best_df.iloc[sample_amount:, :]
+
+    ytrain = {}
+    ytest = {}
+
+    for label in labels:
+        ytrain[label] = traindf[label].values
+        del traindf[label]
+
+        ytest[label] = testdf[label].values
+        del testdf[label]
+
+    X_train = traindf.values
+    X_test = testdf.values
+
+    return X_train, X_test, ytrain, ytest
