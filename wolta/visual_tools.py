@@ -106,3 +106,78 @@ def make_square(dir_from, dir_to, edge_len=256):
             img = cv2.resize(img, (edge_len, edge_len))
 
         cv2.imwrite('{}/{}'.format(dir_to, name), img)
+
+
+def dir_split(src_dir, dest_dir, test_size, val_size):
+    from glob import glob
+    from shutil import copy
+    from random import randint
+    from pathlib import Path
+    import os
+
+    if test_size + val_size < 1:
+        os.makedirs(dest_dir, exist_ok=True)
+        os.makedirs('{}/train'.format(dest_dir))
+        os.makedirs('{}/test'.format(dest_dir))
+        os.makedirs('{}/val'.format(dest_dir))
+
+        d_paths = glob('{}/*'.format(src_dir))
+
+        for d_path in d_paths:
+            current_dir = Path(d_path).name
+
+            train_dir = '{}/train/{}'.format(dest_dir, current_dir)
+            test_dir = '{}/test/{}'.format(dest_dir, current_dir)
+            val_dir = '{}/val/{}'.format(dest_dir, current_dir)
+
+            os.makedirs(train_dir)
+            os.makedirs(test_dir)
+            os.makedirs(val_dir)
+
+            i_paths = glob('{}/*'.format(d_path))
+
+            test_amount = int(len(i_paths) * test_size)
+            val_amount = int(len(i_paths) * val_size)
+
+            for place in ['test', 'val']:
+                steps = test_amount
+                if place == 'val':
+                    steps = val_amount
+
+                for _ in range(steps):
+                    index = randint(0, len(i_paths) - 1)
+                    copy(i_paths[index], '{}/{}/{}/'.format(dest_dir, place, current_dir))
+                    del i_paths[index]
+
+            for i_path in i_paths:
+                copy(i_path, '{}/train/{}/'.format(dest_dir, current_dir))
+
+
+def cls_img_counter(dir_path):
+    from glob import glob
+    from pathlib import Path
+
+    d_paths = glob('{}/*'.format(dir_path))
+
+    cls_amounts = {}
+
+    if len(d_paths) > 0:
+        if len(d_paths) > 1 and Path(d_paths[0]).name in ['train', 'test', 'val'] and Path(d_paths[1]).name in ['train', 'test', 'val']:
+            for d_path in d_paths:
+                c_paths = glob('{}/*'.format(d_path))
+
+                for c_path in c_paths:
+                    c_name = Path(c_path).name
+                    amount = len(glob('{}/*'.format(c_path)))
+
+                    if c_name in cls_amounts.keys():
+                        cls_amounts[c_name] += amount
+                    else:
+                        cls_amounts[c_name] = amount
+        else:
+            for d_path in d_paths:
+                c_name = Path(d_path).name
+                amount = len(glob('{}/*'.format(d_path)))
+                cls_amounts[c_name] = amount
+
+    return cls_amounts
