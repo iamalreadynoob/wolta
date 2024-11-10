@@ -820,3 +820,56 @@ def multi_split(df, labels, test_size, times=50):
     X_test = testdf.values
 
     return X_train, X_test, ytrain, ytest
+
+
+def corr_analyse(array, columns, un_w=0.1, w_s=0.5, s_p=0.9, verbose=True, get_matrix=False):
+    import numpy as np
+
+    matrix = np.corrcoef(array.T)
+
+    results = {
+        'uncorrelated': [],
+        'weak': [],
+        'strong': [],
+        'perfect': []
+    }
+
+    width = array.shape[0]
+
+    for row in range(width):
+        for column in range(row + 1, width):
+            score = matrix[row][column]
+
+            entry = {
+                'columns': [columns[row], columns[column]],
+                'score': score
+            }
+
+            if score < 0:
+                score *= -1
+
+            if s_p < score <= 1:
+                results['perfect'].append(entry)
+            elif w_s < score <= s_p:
+                results['strong'].append(entry)
+            elif un_w < score <= w_s:
+                results['weak'].append(entry)
+            else:
+                results['uncorrelated'].append(entry)
+
+    if verbose is True:
+        for kind in ['perfect', 'strong', 'weak', 'uncorrelated']:
+            print('{}\n============'.format(kind.upper()))
+
+            if len(results[kind]) == 0:
+                print('There is no relation!')
+            else:
+                for relation in results[kind]:
+                    print('{} - {}: {}'.format(relation['columns'][0], relation['columns'][1], relation['score']))
+
+            print('************')
+
+    if get_matrix is True:
+        return results, matrix
+    else:
+        return results
