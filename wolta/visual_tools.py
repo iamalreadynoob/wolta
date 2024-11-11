@@ -1,9 +1,14 @@
 def get_extensions(paths):
+    from pathlib import Path
+
     extensions = {}
 
     for path in paths:
-        splitted = path.split('.')
-        ext = splitted[-1]
+        fname = Path(path).name
+
+        ext = 'none'
+        if fname.__contains__('.'):
+            ext = fname.split('.')[-1]
 
         if ext in extensions.keys():
             extensions[ext] += 1
