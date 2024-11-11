@@ -822,7 +822,7 @@ def multi_split(df, labels, test_size, times=50):
     return X_train, X_test, ytrain, ytest
 
 
-def corr_analyse(array, columns, un_w=0.1, w_s=0.5, s_p=0.9, verbose=True, get_matrix=False):
+def corr_analyse(array, columns, un_w=0.1, w_s=0.5, s_p=0.9, verbose=True, get_matrix=False, csv_path=None):
     import numpy as np
 
     matrix = np.corrcoef(array.T)
@@ -834,7 +834,9 @@ def corr_analyse(array, columns, un_w=0.1, w_s=0.5, s_p=0.9, verbose=True, get_m
         'perfect': []
     }
 
-    width = array.shape[0]
+    text = 'feature1,feature2,score'
+
+    width = array.shape[1]
 
     for row in range(width):
         for column in range(row + 1, width):
@@ -844,6 +846,8 @@ def corr_analyse(array, columns, un_w=0.1, w_s=0.5, s_p=0.9, verbose=True, get_m
                 'columns': [columns[row], columns[column]],
                 'score': score
             }
+
+            text += '\n{},{},{}'.format(columns[row].replace(',', ''), columns[column].replace(',', ''), score)
 
             if score < 0:
                 score *= -1
@@ -868,6 +872,10 @@ def corr_analyse(array, columns, un_w=0.1, w_s=0.5, s_p=0.9, verbose=True, get_m
                     print('{} - {}: {}'.format(relation['columns'][0], relation['columns'][1], relation['score']))
 
             print('************')
+
+    if csv_path is not None:
+        with open(csv_path, 'w') as f:
+            f.write(text)
 
     if get_matrix is True:
         return results, matrix
