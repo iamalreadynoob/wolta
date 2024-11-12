@@ -3,6 +3,12 @@ import pandas as pd
 
 
 def col_types(df, print_columns=False):
+    if not isinstance(df, pd.DataFrame):
+        raise TypeError('df is not a Pandas Dataframe!')
+
+    if not isinstance(print_columns, bool):
+        raise TypeError('print_columns is not a Boolean!')
+
     types = []
 
     columns = list(df.columns)
