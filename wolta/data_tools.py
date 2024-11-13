@@ -17,8 +17,12 @@ def col_types(df, print_columns=False):
         types.append(sub_type)
 
     if print_columns:
-        for i in range(len(columns)):
-            print('{}: {}'.format(columns[i], types[i]))
+        if len(columns) > 0:
+            for i in range(len(columns)):
+                print('{}: {}'.format(columns[i], types[i]))
+
+        else:
+            print('The dataframe is empty!')
 
     return types
 

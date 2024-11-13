@@ -10,6 +10,7 @@ In Wolta, to clarify every test, all the static instruments of library have uniq
 | argument in unexpected datatypes | 1 |
 | perfect scenario | 2 |
 | argument not None but empty | 3 |
+| exact output in console | 4 |
 
 ## Code Files
 
