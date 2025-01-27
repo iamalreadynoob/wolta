@@ -1,3 +1,6 @@
+import numpy as np
+
+
 def quest_selection(model_class, X_train, y_train, X_test, y_test, features, flag_one_tol, fin_tol, params=None, normal_acc=None, trials=100):
     from sklearn.metrics import accuracy_score
     import random
@@ -228,3 +231,35 @@ def multi_split(df, test_size, output, threshold_set):
         del test
 
     return X_trains, X_tests, y_train, y_test
+
+
+def rand_arr(outputs, values=None, strategy='equal', arr_size=1):
+    from random import randint
+    import numpy as np
+
+    y_rand = []
+
+    if values is None:
+        strategy = 'equal'
+
+    if strategy == 'equal':
+        for _ in range(arr_size):
+            y_rand.append(outputs[randint(0, len(outputs) - 1)])
+    elif strategy == 'weighted':
+        for _ in range(arr_size):
+            destiny = randint(0, sum(values) - 1)
+            ceil = 0
+            for i in range(len(values)):
+                ceil += values[i]
+                if destiny < ceil:
+                    y_rand.append(outputs[i])
+                    break
+    elif strategy == 'piled':
+        for _ in range(arr_size):
+            destiny = randint(0, values[-1] - 1)
+            for i in range(len(values)):
+                if destiny < values[i]:
+                    y_rand.append(outputs[i])
+                    break
+
+    return np.array(y_rand)

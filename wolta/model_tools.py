@@ -1533,3 +1533,31 @@ def find_deflection(y_test, y_pred, arr=True, avg=False, gap=None, gap_type='num
                     return len(indexes), indexes
                 else:
                     return len(indexes)
+
+
+def get_measure(y_test, measures, y_train=None):
+    import numpy as np
+    from collections import Counter
+    from feature_tools import rand_arr
+
+    arrays = {}
+    classes = list(np.unique(y_test))
+
+    for measure in measures:
+        if measure == 'random':
+            arrays[measure] = rand_arr(classes, arr_size=y_test.shape[0])
+        elif (measure == 'majority') and (y_train is not None):
+            counted = Counter(y_train)
+            max_val = max(list(counted.values()))
+            majority = list(counted.keys())[list(counted.values()).index(max_val)]
+            arrays[measure] = np.array([majority for _ in range(y_test.shape[0])])
+        elif (measure == 'minority') and (y_train is not None):
+            counted = Counter(y_train)
+            min_val = min(list(counted.values()))
+            minority = list(counted.keys())[list(counted.values()).index(min_val)]
+            arrays[measure] = np.array([minority for _ in range(y_test.shape[0])])
+        elif (measure == 'weighted') and (y_train is not None):
+            counted = Counter(y_train)
+            arrays[measure] = rand_arr(list(counted.keys()), values=list(counted.values()), strategy='weighted', arr_size=y_test.shape[0])
+
+    return arrays

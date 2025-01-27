@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import warnings
 
 
 def col_types(df, print_columns=False):
@@ -28,6 +29,16 @@ def col_types(df, print_columns=False):
 
 
 def unique_amounts(df, strategy=None, print_dict=False):
+    if not isinstance(df, pd.DataFrame):
+        raise TypeError('df is not a Pandas Dataframe!')
+
+    if not isinstance(print_dict, bool):
+        raise TypeError('print_dict is not a Boolean!')
+
+    if strategy is not None:
+        if not isinstance(strategy, list):
+            raise TypeError('strategy is not a List!')
+
     columns = list(df.columns)
 
     if strategy is None:
@@ -38,7 +49,13 @@ def unique_amounts(df, strategy=None, print_dict=False):
             space[col] = amount
 
         if print_dict:
-            print(space)
+            columns = sorted(columns)
+
+            if len(columns) > 0:
+                for col in columns:
+                    print('{}: {} different values'.format(col, space[col]))
+            else:
+                warnings.warn('The dataframe is empty!', UserWarning)
 
         return space
 
@@ -46,13 +63,18 @@ def unique_amounts(df, strategy=None, print_dict=False):
         space = {}
 
         for col in columns:
-            amount = len(list(df[col].unique()))
-
             if col in strategy:
+                amount = len(list(df[col].unique()))
                 space[col] = amount
 
         if print_dict:
-            print(space)
+            cols = sorted(list(space.keys()))
+
+            if len(cols) > 0:
+                for col in cols:
+                    print('{}: {} different values'.format(col, space[col]))
+            else:
+                warnings.warn('There is no such a column as requested.', UserWarning)
 
         return space
 
@@ -891,3 +913,87 @@ def corr_analyse(array, columns, un_w=0.1, w_s=0.5, s_p=0.9, verbose=True, get_m
         return results, matrix
     else:
         return results
+
+
+def scale_df(df, output=None, mode='minmax', params=None):
+    from collections.abc import Iterable
+    from sklearn.preprocessing import MinMaxScaler, StandardScaler, MaxAbsScaler, RobustScaler
+    import pandas as pd
+
+    o_type = 'non'
+    if isinstance(output, str):
+        o_type = 'str'
+    elif isinstance(output, Iterable):
+        o_type = 'list'
+
+    scaler = None
+    if mode == 'minmax':
+        if params is None:
+            scaler = MinMaxScaler()
+        else:
+            scaler = MinMaxScaler(**params)
+    elif mode == 'standard':
+        if params is None:
+            scaler = StandardScaler()
+        else:
+            scaler = StandardScaler(**params)
+    elif mode == 'maxabs':
+        if params is None:
+            scaler = MaxAbsScaler()
+        else:
+            scaler = MaxAbsScaler(**params)
+    elif mode == 'robust':
+        if params is None:
+            scaler = RobustScaler()
+        else:
+            scaler = RobustScaler(**params)
+
+    if scaler is not None:
+        features = list(df.columns)
+        if o_type == 'str':
+            features.remove(output)
+        elif o_type == 'list':
+            for col in output:
+                features.remove(col)
+
+        out_space = {}
+        if o_type == 'str':
+            out_space[output] = df[output].values
+            del df[output]
+        elif o_type == 'list':
+            for col in output:
+                out_space[col] = df[col].values
+                del df[col]
+
+        inputs = df.values
+        inputs = scaler.fit_transform(inputs)
+
+        df = pd.DataFrame(inputs, columns=features)
+        for col in out_space:
+            df[col] = out_space[col]
+
+    return df
+
+
+def corr_high(df, output, strengths=None, verbose=True):
+    if strengths is None:
+        strengths = ['perfect', 'strong', 'weak']
+
+    features_high = []
+    corr = corr_analyse(df.values, list(df.columns), verbose=False)
+
+    for strength in strengths:
+        if verbose is True:
+            print(strength)
+
+        for relation in corr[strength]:
+            if output in relation['columns']:
+                if verbose is True:
+                    print(relation)
+
+                high = relation['columns'][0]
+                if high == output:
+                    high = relation['columns'][1]
+                features_high.append(high)
+
+    return features_high
