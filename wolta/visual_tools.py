@@ -186,3 +186,38 @@ def cls_img_counter(dir_path):
                 cls_amounts[c_name] = amount
 
     return cls_amounts
+
+
+def examine_sizes(img_paths):
+    import cv2
+
+    biggest_width = -1
+    smallest_width = 9999999
+    avg_width = 0
+    biggest_height = -1
+    smallest_height = 9999999
+    avg_height = 0
+
+    for i_path in img_paths:
+        img = cv2.imread(i_path)
+        width, height = img.shape[1], img.shape[0]
+
+        avg_width += width
+        avg_height += height
+
+        if biggest_width < width:
+            biggest_width = width
+        if smallest_width > width:
+            smallest_width = width
+
+        if biggest_height < height:
+            biggest_height = height
+        if smallest_height > height:
+            smallest_height = height
+
+    avg_width /= len(img_paths)
+    avg_height /= len(img_paths)
+
+    print('Average Width x Height: {} x {}'.format(avg_width, avg_height))
+    print('Biggest width is {} and the smallest width is {}'.format(biggest_width, smallest_width))
+    print('Biggest height is {} and the smallest height is {}'.format(biggest_height, smallest_height))

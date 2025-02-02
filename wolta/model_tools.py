@@ -1537,15 +1537,15 @@ def find_deflection(y_test, y_pred, arr=True, avg=False, gap=None, gap_type='num
 
 def get_measure(y_test, measures, y_train=None):
     import numpy as np
+    from random import choice, randint
     from collections import Counter
-    from feature_tools import rand_arr
 
     arrays = {}
     classes = list(np.unique(y_test))
 
     for measure in measures:
         if measure == 'random':
-            arrays[measure] = rand_arr(classes, arr_size=y_test.shape[0])
+            arrays[measure] = [choice(classes) for _ in range(y_test.shape[0])]
         elif (measure == 'majority') and (y_train is not None):
             counted = Counter(y_train)
             max_val = max(list(counted.values()))
@@ -1558,6 +1558,17 @@ def get_measure(y_test, measures, y_train=None):
             arrays[measure] = np.array([minority for _ in range(y_test.shape[0])])
         elif (measure == 'weighted') and (y_train is not None):
             counted = Counter(y_train)
-            arrays[measure] = rand_arr(list(counted.keys()), values=list(counted.values()), strategy='weighted', arr_size=y_test.shape[0])
+            outputs = list(counted.keys())
+            values = list(counted.values())
+            y_rand = []
+            for _ in range(y_test.shape[0]):
+                destiny = randint(0, sum(values) - 1)
+                ceil = 0
+                for i in range(len(values)):
+                    ceil += values[i]
+                    if destiny < ceil:
+                        y_rand.append(outputs[i])
+                        break
+            arrays[measure] = y_rand
 
     return arrays
