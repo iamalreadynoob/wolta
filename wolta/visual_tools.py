@@ -21,23 +21,20 @@ def get_extensions(paths):
 def dataset_size_same(paths):
     import cv2
 
-    same = True
     height, width = cv2.imread(paths[0]).shape[:2]
 
     for i in range(1, len(paths)):
         img_h, img_w = cv2.imread(paths[i]).shape[:2]
 
         if (img_h != height) or (img_w != width):
-            same = False
-            break
+            return False
 
-    return same
+    return True
 
 
 def dataset_ratio_same(paths):
     import cv2
 
-    same = True
     height, width = cv2.imread(paths[0]).shape[:2]
     ratio = width / height
 
@@ -46,13 +43,17 @@ def dataset_ratio_same(paths):
         img_ratio = img_w / img_h
 
         if ratio != img_ratio:
-            same = False
-            break
+            return False
 
-    return same
+    return True
 
 
-def crop(img, path=None, crop_width=256, crop_height=256, get_img=False):
+def save_img(path: str, img) -> None:
+    import cv2
+    cv2.imwrite(path, img)
+
+
+def crop(img, crop_width=256, crop_height=256):
     import cv2
 
     center_height, center_width = img.shape[0] // 2, img.shape[1] // 2
@@ -62,13 +63,10 @@ def crop(img, path=None, crop_width=256, crop_height=256, get_img=False):
 
     img = img[y:y + crop_height, x:x + crop_width]
 
-    if path is not None:
-        cv2.imwrite(path, img)
-    if get_img is True:
-        return img
+    return img
 
 
-def fill(img, path=None, fill_width=256, fill_height=256, get_img=False):
+def fill(img, fill_width=256, fill_height=256):
     import numpy as np
     import cv2
 
@@ -79,13 +77,10 @@ def fill(img, path=None, fill_width=256, fill_height=256, get_img=False):
 
     white_canvas[y_offset:y_offset + img.shape[0], x_offset:x_offset + img.shape[1]] = img
 
-    if path is not None:
-        cv2.imwrite(path, white_canvas)
-    if get_img is True:
-        return white_canvas
+    return white_canvas
 
 
-def make_square(dir_from, dir_to, edge_len=256):
+def make_square(dir_from, dir_to, edge_len=256) -> None:
     from glob import glob
     import cv2
 
@@ -95,70 +90,70 @@ def make_square(dir_from, dir_to, edge_len=256):
         img = cv2.imread(path)
         name = path.split('/')[-1]
 
-        if img.shape[0] == edge_len and img.shape[1] == edge_len:
-            img = img
-        elif img.shape[1] / img.shape[0] == 1:
+        if img.shape[1] / img.shape[0] == 1:
             img = cv2.resize(img, (edge_len, edge_len))
         elif img.shape[0] >= edge_len and img.shape[1] >= edge_len:
             line = min(img.shape[0], img.shape[1])
-            img = crop(img, crop_width=line, crop_height=line, get_img=True)
+            img = crop(img, crop_width=line, crop_height=line)
             img = cv2.resize(img, (edge_len, edge_len))
         elif img.shape[0] < edge_len and img.shape[1] < edge_len:
-            img = fill(img, fill_width=edge_len, fill_height=edge_len, get_img=True)
+            img = fill(img, fill_width=edge_len, fill_height=edge_len)
         elif img.shape[0] >= edge_len or img.shape[1] >= edge_len:
             line = min(img.shape[0], img.shape[1])
-            img = crop(img, crop_width=line, crop_height=line, get_img=True)
+            img = crop(img, crop_width=line, crop_height=line)
             img = cv2.resize(img, (edge_len, edge_len))
 
         cv2.imwrite('{}/{}'.format(dir_to, name), img)
 
 
-def dir_split(src_dir, dest_dir, test_size, val_size):
+def dir_split(src_dir, dest_dir, test_size, val_size) -> None:
     from glob import glob
     from shutil import copy
     from random import randint
     from pathlib import Path
     import os
 
-    if test_size + val_size < 1:
-        os.makedirs(dest_dir, exist_ok=True)
-        os.makedirs('{}/train'.format(dest_dir))
-        os.makedirs('{}/test'.format(dest_dir))
-        os.makedirs('{}/val'.format(dest_dir))
+    if test_size + val_size >= 1:
+        return
 
-        d_paths = glob('{}/*'.format(src_dir))
+    os.makedirs(dest_dir, exist_ok=True)
+    os.makedirs('{}/train'.format(dest_dir))
+    os.makedirs('{}/test'.format(dest_dir))
+    os.makedirs('{}/val'.format(dest_dir))
 
-        for d_path in d_paths:
-            current_dir = Path(d_path).name
+    d_paths = glob('{}/*'.format(src_dir))
 
-            train_dir = '{}/train/{}'.format(dest_dir, current_dir)
-            test_dir = '{}/test/{}'.format(dest_dir, current_dir)
-            val_dir = '{}/val/{}'.format(dest_dir, current_dir)
+    for d_path in d_paths:
+        current_dir = Path(d_path).name
 
-            os.makedirs(train_dir)
-            os.makedirs(test_dir)
-            os.makedirs(val_dir)
+        train_dir = '{}/train/{}'.format(dest_dir, current_dir)
+        test_dir = '{}/test/{}'.format(dest_dir, current_dir)
+        val_dir = '{}/val/{}'.format(dest_dir, current_dir)
 
-            i_paths = glob('{}/*'.format(d_path))
+        os.makedirs(train_dir)
+        os.makedirs(test_dir)
+        os.makedirs(val_dir)
 
-            test_amount = int(len(i_paths) * test_size)
-            val_amount = int(len(i_paths) * val_size)
+        i_paths = glob('{}/*'.format(d_path))
 
-            for place in ['test', 'val']:
-                steps = test_amount
-                if place == 'val':
-                    steps = val_amount
+        test_amount = int(len(i_paths) * test_size)
+        val_amount = int(len(i_paths) * val_size)
 
-                for _ in range(steps):
-                    index = randint(0, len(i_paths) - 1)
-                    copy(i_paths[index], '{}/{}/{}/'.format(dest_dir, place, current_dir))
-                    del i_paths[index]
+        for place in ['test', 'val']:
+            steps = test_amount
+            if place == 'val':
+                steps = val_amount
 
-            for i_path in i_paths:
-                copy(i_path, '{}/train/{}/'.format(dest_dir, current_dir))
+            for _ in range(steps):
+                index = randint(0, len(i_paths) - 1)
+                copy(i_paths[index], '{}/{}/{}/'.format(dest_dir, place, current_dir))
+                del i_paths[index]
+
+        for i_path in i_paths:
+            copy(i_path, '{}/train/{}/'.format(dest_dir, current_dir))
 
 
-def cls_img_counter(dir_path):
+def cls_img_counter(dir_path: str) -> dict[str, str]:
     from glob import glob
     from pathlib import Path
 
@@ -166,37 +161,36 @@ def cls_img_counter(dir_path):
 
     cls_amounts = {}
 
-    if len(d_paths) > 0:
-        if len(d_paths) > 1 and Path(d_paths[0]).name in ['train', 'test', 'val'] and Path(d_paths[1]).name in ['train', 'test', 'val']:
-            for d_path in d_paths:
-                c_paths = glob('{}/*'.format(d_path))
+    if len(d_paths) <= 0:
+        return {}
 
-                for c_path in c_paths:
-                    c_name = Path(c_path).name
-                    amount = len(glob('{}/*'.format(c_path)))
+    if Path(d_paths[0]).name in ['train', 'test', 'val'] and Path(d_paths[1]).name in ['train', 'test', 'val']:
+        for d_path in d_paths:
+            c_paths = glob('{}/*'.format(d_path))
 
-                    if c_name in cls_amounts.keys():
-                        cls_amounts[c_name] += amount
-                    else:
-                        cls_amounts[c_name] = amount
-        else:
-            for d_path in d_paths:
-                c_name = Path(d_path).name
-                amount = len(glob('{}/*'.format(d_path)))
-                cls_amounts[c_name] = amount
+            for c_path in c_paths:
+                c_name = Path(c_path).name
+                amount = len(glob('{}/*'.format(c_path)))
+
+                if c_name in cls_amounts.keys():
+                    cls_amounts[c_name] += amount
+                else:
+                    cls_amounts[c_name] = amount
+    else:
+        for d_path in d_paths:
+            c_name = Path(d_path).name
+            amount = len(glob('{}/*'.format(d_path)))
+            cls_amounts[c_name] = amount
 
     return cls_amounts
 
 
-def examine_sizes(img_paths):
+def examine_sizes(img_paths: list[str]) -> None:
     import cv2
 
-    biggest_width = -1
-    smallest_width = 9999999
-    avg_width = 0
-    biggest_height = -1
-    smallest_height = 9999999
-    avg_height = 0
+    biggest_width, biggest_height = -1, -1
+    avg_width, avg_height = 0, 0
+    smallest_width, smallest_height = 9999999, 9999999
 
     for i_path in img_paths:
         img = cv2.imread(i_path)
@@ -205,15 +199,11 @@ def examine_sizes(img_paths):
         avg_width += width
         avg_height += height
 
-        if biggest_width < width:
-            biggest_width = width
-        if smallest_width > width:
-            smallest_width = width
+        biggest_width = max(width, biggest_width)
+        smallest_width = min(width, smallest_width)
 
-        if biggest_height < height:
-            biggest_height = height
-        if smallest_height > height:
-            smallest_height = height
+        biggest_height = max(height, biggest_height)
+        smallest_height = min(height, smallest_height)
 
     avg_width /= len(img_paths)
     avg_height /= len(img_paths)
